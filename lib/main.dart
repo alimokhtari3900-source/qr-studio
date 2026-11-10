@@ -11,7 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final configured = supabaseUrl.startsWith('https://') && supabaseAnonKey.isNotEmpty;
   if (configured) {
-    await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+    await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
   }
   runApp(QRStudioApp(configured: configured));
 }
@@ -138,7 +138,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final text = search.text.trim();
     final rows = text.isEmpty
         ? await q.order('created_at', ascending: false)
-        : await q.ilike('name', '%$text%').order('created_at', ascending: false);
+        : await q.filter('name', 'ilike', '%$text%').order('created_at', ascending: false);
     return List<Map<String,dynamic>>.from(rows);
   }
   Future<void> refresh() async { setState(() => busy = true); await Future<void>.delayed(const Duration(milliseconds: 200)); if (mounted) setState(() => busy = false); }
@@ -147,7 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (mounted) setState(() {});
   }
   @override Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('QR Studio', style: TextStyle(fontWeight: FontWeight.bold)), actions: [IconButton(onPressed: () async { await Supabase.instance.client.auth.signOut(); if (mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AuthGate()), (_) => false); }, icon: const Icon(Icons.logout))]),
+    appBar: AppBar(title: const Text('QR Studio', style: TextStyle(fontWeight: FontWeight.bold)), actions: [IconButton(onPressed: () async { await Supabase.instance.client.auth.signOut(); if (!context.mounted) return; Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AuthGate()), (_) => false); }, icon: const Icon(Icons.logout))]),
     floatingActionButton: FloatingActionButton.extended(onPressed: () => editor(), icon: const Icon(Icons.add), label: const Text('محصول جدید')),
     body: RefreshIndicator(onRefresh: refresh, child: ListView(padding: const EdgeInsets.all(16), children: [
       Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), gradient: const LinearGradient(colors: [Color(0xFF15142E), Color(0xFF54268A)])), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('پنل مدیریت محصولات', style: TextStyle(color: Colors.white70)), SizedBox(height: 8), Text('محصولات خود را مدیریت کنید', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 21)), SizedBox(height: 4), Text('برای هر محصول یک QR اختصاصی بسازید.', style: TextStyle(color: Colors.white70))])),
