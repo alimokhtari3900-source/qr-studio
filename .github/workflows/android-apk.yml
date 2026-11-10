@@ -1,0 +1,44 @@
+name: Build Android APK
+'on':
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Android project
+        run: flutter create --project-name qr_studio --org com.qrstudio --platforms=android .
+      - name: Install packages
+        run: flutter pub get
+      - name: Static analysis
+        run: flutter analyze
+      - name: Build installable APK
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+        run: |
+          flutter build apk --release \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            --dart-define=PUBLIC_SITE_URL="${PUBLIC_SITE_URL:-https://alimokhtari3900-source.github.io/qr-studio}"
+          mkdir -p output
+          cp build/app/outputs/flutter-apk/app-release.apk output/QR-Studio.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QR-Studio-Android-APK
+          path: output/QR-Studio.apk
+          retention-days: 30
