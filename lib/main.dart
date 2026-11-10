@@ -134,10 +134,11 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final search = TextEditingController(); bool busy = false;
   Future<List<Map<String,dynamic>>> load() async {
-    var q = Supabase.instance.client.from('products').select().order('created_at', ascending: false);
+    final q = Supabase.instance.client.from('products').select();
     final text = search.text.trim();
-    if (text.isNotEmpty) q = q.ilike('name', '%$text%');
-    final rows = await q;
+    final rows = text.isEmpty
+        ? await q.order('created_at', ascending: false)
+        : await q.ilike('name', '%$text%').order('created_at', ascending: false);
     return List<Map<String,dynamic>>.from(rows);
   }
   Future<void> refresh() async { setState(() => busy = true); await Future<void>.delayed(const Duration(milliseconds: 200)); if (mounted) setState(() => busy = false); }
