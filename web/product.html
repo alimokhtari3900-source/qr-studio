@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17152d">
+  <meta name="description" content="صفحه رسمی معرفی محصول">
+  <title>معرفی محصول | QR Studio</title>
+  <style>
+    :root{color-scheme:light;--ink:#20183a;--muted:#767184;--purple:#542a83;--gold:#d9a441;--paper:#f5f3f8}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+    .top{background:linear-gradient(125deg,#17152d,#49236f 70%,#18264b);color:#fff;padding:27px 20px 64px}
+    .top-inner,.shell{max-width:900px;margin:auto}.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;letter-spacing:.2px}
+    .brand-mark{width:38px;height:38px;border-radius:12px;background:#ffffff1a;display:grid;place-items:center;font-size:24px}
+    .top-note{margin:12px 0 0;color:#eee8f8b8;font-size:13px}
+    .shell{padding:0 16px 40px;margin-top:-38px}
+    .card{background:#fff;border:1px solid #ebe7f0;border-radius:24px;box-shadow:0 18px 50px #24143b12;overflow:hidden}
+    .content{padding:26px}
+    .loading{min-height:250px;display:grid;place-items:center;color:var(--muted);text-align:center}
+    .spinner{width:34px;height:34px;border:3px solid #e8e2f0;border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .gallery{position:relative;background:#f1eef5;min-height:250px;display:grid;place-items:center}
+    .hero-image{display:block;width:100%;height:clamp(260px,48vw,490px);object-fit:contain;background:#f9f8fb;cursor:zoom-in}
+    .no-image{padding:72px 16px;text-align:center;color:#928aa0}.no-image .symbol{font-size:58px;line-height:1.3}
+    .gallery-controls{display:flex;justify-content:center;gap:8px;padding:12px;background:#fff}
+    .dot{width:9px;height:9px;border-radius:50%;border:0;background:#d9d3e1;padding:0;cursor:pointer}.dot.active{width:24px;border-radius:8px;background:var(--purple)}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.pill{border-radius:999px;background:#f3eff8;color:var(--purple);padding:4px 12px;font-size:12px}
+    h1{font-size:clamp(23px,4vw,32px);line-height:1.5;margin:0 0 8px}.brand-name{color:var(--muted);font-size:14px}
+    .divider{height:1px;background:#eeeaf2;margin:20px 0}.section-title{font-size:15px;font-weight:800;margin:0 0 8px}
+    .description{white-space:pre-wrap;overflow-wrap:anywhere;color:#4e495b;font-size:15px}
+    .code{display:inline-block;direction:ltr;text-align:left;border-radius:10px;background:#f7f5f9;padding:4px 11px;color:#4d4260;font-size:13px}
+    .footer{padding:18px 24px;border-top:1px solid #f0edf3;color:#9992a4;font-size:11px;text-align:center}
+    .state{padding:58px 22px;text-align:center}.state-icon{font-size:46px}.state h2{font-size:20px;margin:8px 0}.state p{color:var(--muted);margin:0 auto 16px;max-width:480px}
+    .retry{border:0;border-radius:12px;background:var(--purple);color:#fff;padding:10px 20px;font:inherit;cursor:pointer}
+    .share{border:1px solid #e7e1ee;border-radius:12px;background:#fff;color:var(--purple);padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
+    .actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+    dialog{border:0;padding:0;border-radius:16px;max-width:min(94vw,1000px);background:#111;box-shadow:0 20px 70px #0007}
+    dialog::backdrop{background:#080510dd}dialog img{display:block;max-width:92vw;max-height:88vh;object-fit:contain}
+    @media(max-width:560px){.content{padding:19px}.top{padding-top:20px}.shell{padding:0 10px 28px}.card{border-radius:19px}.hero-image{height:300px}}
+  </style>
+</head>
+<body>
+  <header class="top"><div class="top-inner">
+    <div class="brand"><span class="brand-mark">▦</span><span>QR STUDIO</span></div>
+    <p class="top-note">صفحه رسمی معرفی محصول</p>
+  </div></header>
+  <main class="shell">
+    <section class="card" aria-live="polite">
+      <div id="loading" class="loading"><div><div class="spinner"></div><div>در حال دریافت اطلاعات محصول...</div></div></div>
+      <div id="not-found" class="state" hidden><div class="state-icon">⌕</div><h2>محصول پیدا نشد</h2><p>این محصول وجود ندارد یا هنوز توسط مدیر منتشر نشده است. لطفاً کد QR را بررسی کنید.</p></div>
+      <div id="failure" class="state" hidden><div class="state-icon">☁</div><h2>اتصال برقرار نشد</h2><p>برای دیدن اطلاعات محصول، اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.</p><button class="retry" id="retry">تلاش دوباره</button></div>
+      <article id="product" hidden>
+        <div class="gallery" id="gallery"><div class="no-image"><div class="symbol">▧</div>برای این محصول هنوز عکسی ثبت نشده است.</div></div>
+        <div class="gallery-controls" id="gallery-controls" hidden></div>
+        <div class="content">
+          <div class="meta" id="meta"></div>
+          <h1 id="name"></h1>
+          <div class="brand-name" id="brand"></div>
+          <div class="divider"></div>
+          <h2 class="section-title">درباره محصول</h2>
+          <div class="description" id="description"></div>
+          <div id="code-wrap" class="divider" hidden></div>
+          <div id="code-row" hidden><span class="section-title">شناسه محصول: </span><span class="code" id="code"></span></div>
+          <div class="actions"><button class="share" id="share">اشتراک‌گذاری محصول</button></div>
+        </div>
+      </article>
+      <div class="footer">ارائه‌شده با QR Studio</div>
+    </section>
+  </main>
+  <dialog id="lightbox"><img id="lightbox-image" alt="نمای بزرگ تصویر محصول"></dialog>
+<script>
+const SUPABASE_URL = __SUPABASE_URL_JSON__;
+const SUPABASE_KEY = __SUPABASE_PUBLISHABLE_KEY_JSON__;
+const params = new URLSearchParams(window.location.search);
+const productId = params.get('id');
+const el = id => document.getElementById(id);
+let currentProduct = null;
+let galleryUrls = [];
+let activeImage = 0;
+
+function showState(state) {
+  el('loading').hidden = state !== 'loading';
+  el('not-found').hidden = state !== 'not-found';
+  el('failure').hidden = state !== 'failure';
+  el('product').hidden = state !== 'product';
+}
+function normalizedImages(value) {
+  if (!Array.isArray(value)) return [];
+  return value.map(item => {
+    if (typeof item === 'string') return item;
+    if (item && typeof item === 'object') return item.url || item.publicUrl || item.public_url || '';
+    return '';
+  }).filter(url => typeof url === 'string' && /^https:\/\//i.test(url));
+}
+function setImage(index) {
+  if (!galleryUrls.length) return;
+  activeImage = (index + galleryUrls.length) % galleryUrls.length;
+  const image = document.createElement('img');
+  image.className = 'hero-image';
+  image.src = galleryUrls[activeImage];
+  image.alt = (currentProduct.name || 'تصویر محصول') + ' - تصویر ' + (activeImage + 1);
+  image.addEventListener('click', () => {
+    el('lightbox-image').src = galleryUrls[activeImage];
+    el('lightbox').showModal();
+  });
+  el('gallery').replaceChildren(image);
+  Array.from(el('gallery-controls').children).forEach((dot, i) => dot.classList.toggle('active', i === activeImage));
+}
+function renderProduct(product) {
+  currentProduct = product;
+  galleryUrls = normalizedImages(product.images);
+  el('name').textContent = product.name || 'محصول بدون نام';
+  el('brand').textContent = [product.brand, product.category].filter(Boolean).join(' • ');
+  el('description').textContent = product.description || 'توضیحی برای این محصول ثبت نشده است.';
+  el('meta').replaceChildren();
+  if (product.category) {
+    const category = document.createElement('span');
+    category.className = 'pill';
+    category.textContent = product.category;
+    el('meta').appendChild(category);
+  }
+  if (product.brand) {
+    const brand = document.createElement('span');
+    brand.className = 'pill';
+    brand.textContent = product.brand;
+    el('meta').appendChild(brand);
+  }
+  el('code-row').hidden = !product.code;
+  el('code-wrap').hidden = !product.code;
+  el('code').textContent = product.code || '';
+  if (!galleryUrls.length) {
+    el('gallery').innerHTML = '<div class="no-image"><div class="symbol">▧</div>برای این محصول هنوز عکسی ثبت نشده است.</div>';
+    el('gallery-controls').hidden = true;
+  } else {
+    el('gallery-controls').replaceChildren();
+    galleryUrls.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.className = 'dot' + (index === 0 ? ' active' : '');
+      dot.type = 'button';
+      dot.setAttribute('aria-label', 'نمایش تصویر ' + (index + 1));
+      dot.addEventListener('click', () => setImage(index));
+      el('gallery-controls').appendChild(dot);
+    });
+    el('gallery-controls').hidden = galleryUrls.length < 2;
+    setImage(0);
+  }
+  showState('product');
+}
+async function loadProduct() {
+  showState('loading');
+  if (!productId || !/^[0-9a-f-]{36}$/i.test(productId)) {
+    showState('not-found');
+    return;
+  }
+  try {
+    const endpoint = SUPABASE_URL + '/rest/v1/products?select=id,name,code,brand,category,description,images'
+      + '&id=eq.' + encodeURIComponent(productId)
+      + '&is_published=eq.true&is_active=eq.true&limit=1';
+    const response = await fetch(endpoint, {headers: {'apikey': SUPABASE_KEY}});
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const rows = await response.json();
+    if (!Array.isArray(rows) || rows.length === 0) {
+      showState('not-found');
+      return;
+    }
+    renderProduct(rows[0]);
+  } catch (error) {
+    console.error('QR Studio product page:', error);
+    showState('failure');
+  }
+}
+el('retry').addEventListener('click', loadProduct);
+el('lightbox').addEventListener('click', () => el('lightbox').close());
+el('share').addEventListener('click', async () => {
+  const shareData = {title: currentProduct?.name || 'محصول', text: currentProduct?.description || '', url: window.location.href};
+  try {
+    if (navigator.share) await navigator.share(shareData);
+    else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(window.location.href);
+      el('share').textContent = 'لینک کپی شد';
+    } else {
+      window.prompt('لینک محصول را کپی کنید:', window.location.href);
+    }
+  } catch (_) {}
+});
+loadProduct();
+</script>
+</body>
+</html>
