@@ -520,7 +520,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 'کد: ${product['code'] ?? '-'}  •  اسکن: ${product['scan_count'] ?? 0}',
                               ),
                               leading: productThumbnail(product),
-                              trailing: const Icon(Icons.chevron_left),
+                              trailing: PopupMenuButton<String>(
+                                tooltip: 'گزینه‌های محصول',
+                                onSelected: (value) {
+                                  if (value == 'edit') editor(product);
+                                },
+                                itemBuilder: (_) => const [
+                                  PopupMenuItem(
+                                    value: 'edit',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit_outlined, size: 19),
+                                        SizedBox(width: 8),
+                                        Text('ویرایش محصول'),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
