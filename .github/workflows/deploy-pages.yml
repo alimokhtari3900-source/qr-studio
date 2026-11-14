@@ -1,0 +1,66 @@
+name: Publish QR Studio product pages
+'on':
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/deploy-pages.yml'
+      - 'supabase/migrations/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Prepare public product page
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          url = os.environ.get("SUPABASE_URL", "").strip().rstrip("/")
+          key = os.environ.get("SUPABASE_PUBLISHABLE_KEY", "").strip()
+          if not url.startswith("https://") or not key:
+              raise SystemExit("Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in GitHub Actions Variables.")
+
+          output = Path("dist")
+          output.mkdir(exist_ok=True)
+          html = Path("web/product.html").read_text(encoding="utf-8")
+          html = html.replace("__SUPABASE_URL_JSON__", json.dumps(url))
+          html = html.replace("__SUPABASE_PUBLISHABLE_KEY_JSON__", json.dumps(key))
+          (output / "product.html").write_text(html, encoding="utf-8")
+          (output / ".nojekyll").write_text("", encoding="utf-8")
+          PY
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
