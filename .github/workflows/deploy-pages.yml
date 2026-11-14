@@ -1,4 +1,5 @@
 name: Publish QR Studio product pages
+# Deploy the QR landing page after the repository enables GitHub Pages.
 'on':
   push:
     branches: [main]
