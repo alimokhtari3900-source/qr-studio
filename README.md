@@ -1,25 +1,33 @@
 # QR Studio — Android App
 
-QR Studio is a Persian-first Flutter Android app for managing product records and generating stable product QR links.
+QR Studio is a Persian-first Flutter app for managing product information and creating a dedicated QR code for each product.
 
-## Download the Android APK
-Open [GitHub Actions](https://github.com/alimokhtari3900-source/qr-studio/actions/workflows/android-apk.yml), open the latest successful **Build Android APK** run, and download the `QR-Studio-Android-APK` artifact. It contains `QR-Studio.apk`.
+## Download and install the Android APK
 
-## Install on Android
-1. Download and extract the artifact ZIP.
-2. Tap `QR-Studio.apk` on your phone.
-3. Allow installation from this source when Android prompts you.
-4. Open QR Studio.
+1. Open [GitHub Actions](https://github.com/alimokhtari3900-source/qr-studio/actions/workflows/android-apk.yml).
+2. Open the latest successful **Build Android APK** run.
+3. Download the `QR-Studio-Android-APK` artifact, extract it, and install `QR-Studio.apk` on Android.
 
 ## Connect the backend
-Add these repository Variables under Settings → Secrets and variables → Actions → Variables:
+
+Add these repository Variables under **Settings → Secrets and variables → Actions → Variables**:
+
 - `SUPABASE_URL`
-- `SUPABASE_PUBLISHABLE_KEY` (Supabase publishable/anon key; never the service_role key)
-- `PUBLIC_SITE_URL`
+- `SUPABASE_PUBLISHABLE_KEY` (publishable key only; never use a secret or service-role key in the app)
+- `PUBLIC_SITE_URL` (optional; default is `https://alimokhtari3900-source.github.io/qr-studio`)
 
-Run `supabase/migrations/202611100001_initial_schema.sql` in the Supabase SQL Editor. Create a manager user in Supabase Authentication, then add that user's UUID to `public.admin_users`.
+The initial database setup is in `supabase/migrations/202611100001_initial_schema.sql`. The product photo bucket and its admin-only upload policies are in `supabase/migrations/202611140001_product_images.sql`.
 
-Without those settings the APK still installs, but shows the setup guidance instead of enabling sign-in and product storage. This repository does not include a live Supabase project.
+## Publish the public product pages
+
+In the repository, open **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions** once. The `Publish QR Studio product pages` workflow will then deploy `web/product.html` whenever it changes on `main`.
+
+When the page is deployed, each QR opens a mobile-friendly public page showing the product name, brand, category, description, and photos. Anyone can view a product only after the admin turns on **انتشار عمومی محصول** and keeps the product active.
+
+## Product photos
+
+The product editor supports up to six JPEG, PNG, or WEBP images per product. Each image can be up to 8 MB. Public downloads are enabled for the dedicated `product-images` bucket; uploads and deletes are restricted to authenticated admins.
 
 ## Safety
-The app never embeds a service-role key. Do not add it to GitHub Variables, app source, or client builds.
+
+The app uses the Supabase publishable key with Row Level Security. Never add a Supabase secret key or `service_role` key to source code, GitHub Variables, or an Android build.
