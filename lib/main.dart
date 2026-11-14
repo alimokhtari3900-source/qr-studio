@@ -3,15 +3,15 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+const supabasePublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 const publicSiteUrl = String.fromEnvironment('PUBLIC_SITE_URL',
     defaultValue: 'https://alimokhtari3900-source.github.io/qr-studio');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final configured = supabaseUrl.startsWith('https://') && supabaseAnonKey.isNotEmpty;
+  final configured = supabaseUrl.startsWith('https://') && supabasePublishableKey.isNotEmpty;
   if (configured) {
-    await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
+    await Supabase.initialize(url: supabaseUrl, publishableKey: supabasePublishableKey);
   }
   runApp(QRStudioApp(configured: configured));
 }
@@ -52,7 +52,7 @@ class SetupRequired extends StatelessWidget {
         const SizedBox(height: 10),
         const Text('اپلیکیشن نصب شده است؛ برای فعال‌سازی پنل مدیریت باید پروژه Supabase به آن متصل شود.', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
         const SizedBox(height: 18),
-        const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('مدیر سیستم باید متغیرهای SUPABASE_URL و SUPABASE_ANON_KEY را در تنظیمات GitHub وارد کند و نسخه را دوباره بسازد.', textAlign: TextAlign.center))),
+        const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('مدیر سیستم باید متغیرهای SUPABASE_URL و SUPABASE_PUBLISHABLE_KEY را در تنظیمات GitHub وارد کند و نسخه را دوباره بسازد.', textAlign: TextAlign.center))),
         const Text('کلید Service Role هرگز نباید در اپلیکیشن قرار بگیرد.', style: TextStyle(color: Colors.redAccent)),
       ]),
     )),
