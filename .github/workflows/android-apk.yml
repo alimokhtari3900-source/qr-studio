@@ -21,6 +21,9 @@ jobs:
           cache: true
       - name: Generate Android project
         run: flutter create --project-name qr_studio --org com.qrstudio --platforms=android .
+      - name: Enable Android internet access
+        run: |
+          sed -i '/<application/i\    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
       - name: Install packages
         run: flutter pub get
       - name: Static analysis
