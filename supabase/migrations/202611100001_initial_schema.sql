@@ -21,4 +21,5 @@ create policy "admin products all" on public.products for all to authenticated u
 revoke all on public.admin_users from anon,authenticated;
 grant select on public.admin_users to authenticated;
 revoke all on public.products from anon,authenticated;
+grant select on public.products to anon;
 grant select,insert,update,delete on public.products to authenticated;
