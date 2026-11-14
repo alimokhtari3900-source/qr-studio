@@ -13,7 +13,7 @@ create table if not exists public.products(
 alter table public.admin_users enable row level security;
 alter table public.products enable row level security;
 drop policy if exists "admin read admins" on public.admin_users;
-create policy "admin read admins" on public.admin_users for select to authenticated using (public.is_admin());
+create policy "admin read admins" on public.admin_users for select to authenticated using (user_id = auth.uid() or public.is_admin());
 drop policy if exists "public published read" on public.products;
 create policy "public published read" on public.products for select to anon, authenticated using (is_active and is_published);
 drop policy if exists "admin products all" on public.products;
