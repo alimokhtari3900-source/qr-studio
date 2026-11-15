@@ -17,7 +17,7 @@ const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const supabasePublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 const publicSiteUrl = String.fromEnvironment(
   'PUBLIC_SITE_URL',
-  defaultValue: 'https://alimokhtari3900-source.github.io/qr-studio/pro',
+  defaultValue: 'https://alimokhtari3900-source.github.io/qr-studio/luxe',
 );
 const productImageBucket = 'product-images';
 const maxProductImages = 6;
@@ -42,19 +42,26 @@ class QRStudioApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'QR Studio Pro',
+        title: 'QR Studio Pro Luxe',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF21163D),
-            primary: const Color(0xFF21163D),
-            secondary: const Color(0xFFD9A441),
+            seedColor: const Color(0xFF24172E),
+            primary: const Color(0xFF24172E),
+            secondary: const Color(0xFFD4AD68),
           ),
-          scaffoldBackgroundColor: const Color(0xFFF6F5F8),
+          scaffoldBackgroundColor: const Color(0xFFF7F4F0),
+          pageTransitionsTheme: const PageTransitionsTheme(builders: {
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+          }),
           appBarTheme: const AppBarTheme(
             backgroundColor: Color(0xFFF6F5F8),
-            foregroundColor: Color(0xFF21163D),
+            foregroundColor: Color(0xFF24172E),
             elevation: 0,
           ),
           inputDecorationTheme: InputDecorationTheme(
@@ -90,7 +97,7 @@ class SetupRequired extends StatelessWidget {
                 const BrandMark(),
                 const SizedBox(height: 20),
                 const Text(
-                  'QR Studio Pro',
+                  'QR Studio Pro Luxe',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
@@ -134,7 +141,7 @@ class BrandMark extends StatelessWidget {
           ],
         ),
         clipBehavior: Clip.antiAlias,
-        child: Image.asset('assets/branding/qr-studio-pro-icon.png', fit: BoxFit.cover),
+        child: Image.asset('assets/branding/qr-studio-luxe-icon.png', fit: BoxFit.cover),
       );
 }
 
@@ -263,11 +270,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   const BrandMark(),
                   const SizedBox(height: 18),
                   const Text(
-                    'QR Studio',
+                    'QR Studio Pro Luxe',
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  const Text('مدیریت حرفه‌ای محصولات و QR Code'),
+                  const Text('مدیریت یکپارچه محصولات، کاتالوگ و QR اختصاصی'),
                   const SizedBox(height: 30),
                   TextField(
                     controller: email,
@@ -430,7 +437,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         flush: true,
       );
       await SharePlus.instance.share(ShareParams(
-        title: 'گزارش محصولات QR Studio Pro',
+        title: 'گزارش محصولات QR Studio Pro Luxe',
         text: 'گزارش محصولات برای بازکردن در Excel یا ذخیره در فایل‌ها.',
         files: [XFile(file.path)],
       ));
@@ -447,19 +454,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget statCard(String label, String value, IconData icon, Color tint) =>
-      Expanded(child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFECE7F0))),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, color: tint, size: 20),
-          const SizedBox(height: 9),
-          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF251936))),
-          const SizedBox(height: 2),
-          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF82778F), fontWeight: FontWeight.w600)),
-        ]),
-      ));
+      Expanded(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 320),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(19),
+            border: Border.all(color: const Color(0xFFE9E0D3)),
+            boxShadow: const [
+              BoxShadow(color: Color(0x0D25172E), blurRadius: 16, offset: Offset(0, 6)),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: tint.withOpacity(.11),
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: Icon(icon, color: tint, size: 19),
+              ),
+              const SizedBox(height: 10),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, .12),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                ),
+                child: Text(
+                  value,
+                  key: ValueKey(value),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF251936),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFF82778F),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 
   Widget productThumbnail(Map<String, dynamic> product) {
     final raw = product['images'];
@@ -494,7 +549,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget productCard(Map<String, dynamic> product) => Card(
     margin: const EdgeInsets.only(bottom: 11), elevation: 0, color: Colors.white,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21),
-      side: const BorderSide(color: Color(0xFFECE7F0))),
+      side: const BorderSide(color: Color(0xFFE9E0D3))),
     child: InkWell(borderRadius: BorderRadius.circular(21),
       onTap: () => Navigator.push(context,
         MaterialPageRoute(builder: (_) => QRScreen(product: product))),
@@ -555,12 +610,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: const Color(0xFFF7F5F9),
-    appBar: AppBar(backgroundColor: const Color(0xFFF7F5F9),
+    backgroundColor: const Color(0xFFF7F4F0),
+    appBar: AppBar(backgroundColor: const Color(0xFFF7F4F0),
       title: const Row(children: [
         Icon(Icons.auto_awesome, color: Color(0xFFC79B4A), size: 19),
         SizedBox(width: 7),
-        Text('QR Studio Pro', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: -.3)),
+        Text('QR Studio Pro Luxe', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: -.3)),
       ]),
       actions: [
         IconButton(tooltip: 'به‌روزرسانی فهرست', onPressed: refresh, icon: const Icon(Icons.refresh_rounded)),
@@ -572,7 +627,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }, icon: const Icon(Icons.logout_rounded)),
       ]),
     floatingActionButton: FloatingActionButton.extended(
-      backgroundColor: const Color(0xFF2A1B3D), foregroundColor: Colors.white,
+      backgroundColor: const Color(0xFF24172E), foregroundColor: Colors.white,
       onPressed: () => editor(), icon: const Icon(Icons.add_rounded),
       label: const Text('محصول جدید', style: TextStyle(fontWeight: FontWeight.bold))),
     body: RefreshIndicator(onRefresh: refresh,
@@ -598,6 +653,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final published = allRows.where((p) => p['is_active'] == true && p['is_published'] == true).length;
           final drafts = allRows.where((p) => p['is_active'] == true && p['is_published'] != true).length;
           final archived = allRows.where((p) => p['is_active'] != true).length;
+          final totalScans = allRows.fold<int>(
+            0,
+            (sum, product) => sum + ((product['scan_count'] ?? 0) as num).toInt(),
+          );
+          final mostViewed = List<Map<String, dynamic>>.from(allRows)
+            ..sort((a, b) => ((b['scan_count'] ?? 0) as num)
+                .compareTo((a['scan_count'] ?? 0) as num));
+          final topProduct = mostViewed.isEmpty ? null : mostViewed.first;
           final query = search.text.trim().toLowerCase();
           var visible = allRows.where((p) {
             final haystack = [p['name'], p['code'], p['brand'], p['category']]
@@ -626,7 +689,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Container(padding: const EdgeInsets.all(21),
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),
-                  gradient: const LinearGradient(colors: [Color(0xFF171222), Color(0xFF39234E), Color(0xFF64417A)],
+                  gradient: const LinearGradient(colors: [Color(0xFF15101B), Color(0xFF2D2138), Color(0xFF5B4632)],
                     begin: Alignment.topRight, end: Alignment.bottomLeft),
                   boxShadow: const [BoxShadow(color: Color(0x22301A48), blurRadius: 22, offset: Offset(0, 10))]),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -638,12 +701,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Container(padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                       decoration: BoxDecoration(color: const Color(0x33D9B56B), borderRadius: BorderRadius.circular(30),
                         border: Border.all(color: const Color(0x66D9B56B))),
-                      child: const Text('PRO  •  نسخه ۲', style: TextStyle(color: Color(0xFFF2D8A2), fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: .5))),
+                      child: const Text('PRO LUXE  •  نسخه ۳', style: TextStyle(color: Color(0xFFF2D8A2), fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: .5))),
                   ]),
                   const SizedBox(height: 18),
-                  const Text('مدیریت هوشمند کاتالوگ محصولات', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20)),
+                  const Text('مدیریت لوکس و هوشمند محصولات', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20)),
                   const SizedBox(height: 6),
-                  const Text('از ثبت مشخصات تا معرفی دیجیتال و QR اختصاصی؛ همه‌چیز یک‌جا و مرتب.',
+                  const Text('از معرفی محصول تا QR اختصاصی و گزارش بازدید؛ همه‌چیز با ظاهری حرفه‌ای و منظم.',
                     style: TextStyle(color: Color(0xFFD7CEDF), height: 1.7, fontSize: 12)),
                   const SizedBox(height: 15),
                   Row(children: [
@@ -655,12 +718,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ])),
               const SizedBox(height: 14),
               Row(children: [
-                statCard('کل محصولات', allRows.length.toString(), Icons.inventory_2_outlined, const Color(0xFF7652A0)),
-                const SizedBox(width: 8),
-                statCard('منتشرشده', published.toString(), Icons.public_rounded, const Color(0xFF21845E)),
-                const SizedBox(width: 8),
-                statCard('پیش‌نویس', drafts.toString(), Icons.edit_note_rounded, const Color(0xFFB17B22)),
+                statCard('کل محصولات', allRows.length.toString(),
+                    Icons.inventory_2_outlined, const Color(0xFF7652A0)),
+                const SizedBox(width: 9),
+                statCard('منتشرشده', published.toString(),
+                    Icons.public_rounded, const Color(0xFF21845E)),
               ]),
+              const SizedBox(height: 9),
+              Row(children: [
+                statCard('مجموع اسکن‌ها', totalScans.toString(),
+                    Icons.qr_code_scanner_rounded, const Color(0xFF9B7435)),
+                const SizedBox(width: 9),
+                statCard('پیش‌نویس‌ها', drafts.toString(),
+                    Icons.edit_note_rounded, const Color(0xFFB17B22)),
+              ]),
+              if (topProduct != null && ((topProduct['scan_count'] ?? 0) as num) > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFCF5),
+                      borderRadius: BorderRadius.circular(17),
+                      border: Border.all(color: const Color(0xFFE8D9BB)),
+                    ),
+                    child: Row(children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD4AD68).withOpacity(.18),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.trending_up_rounded,
+                            color: Color(0xFF9A7132)),
+                      ),
+                      const SizedBox(width: 11),
+                      Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('محصول پربازدید این مجموعه',
+                              style: TextStyle(fontSize: 10, color: Color(0xFF8A785C))),
+                          const SizedBox(height: 3),
+                          Text(topProduct['name']?.toString() ?? 'بدون نام',
+                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w900,
+                                  color: Color(0xFF2D2138))),
+                        ],
+                      )),
+                      Text('${topProduct['scan_count'] ?? 0} اسکن',
+                          style: const TextStyle(
+                              fontSize: 11, fontWeight: FontWeight.w800,
+                              color: Color(0xFF8A652E))),
+                    ]),
+                  ),
+                ),
               const SizedBox(height: 8),
               Row(children: [
                 const Icon(Icons.archive_outlined, size: 15, color: Color(0xFF82778F)),
@@ -679,9 +792,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     onPressed: () { search.clear(); setState(() {}); }, icon: const Icon(Icons.close_rounded)),
                   filled: true, fillColor: Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(17),
-                    borderSide: const BorderSide(color: Color(0xFFECE7F0))),
+                    borderSide: const BorderSide(color: Color(0xFFE9E0D3))),
                   enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(17),
-                    borderSide: const BorderSide(color: Color(0xFFECE7F0))),
+                    borderSide: const BorderSide(color: Color(0xFFE9E0D3))),
                 )),
               const SizedBox(height: 13),
               SingleChildScrollView(scrollDirection: Axis.horizontal,
@@ -725,7 +838,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               if (visible.isEmpty)
                 Container(padding: const EdgeInsets.all(30),
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFECE7F0))),
+                    border: Border.all(color: const Color(0xFFE9E0D3))),
                   child: Column(children: [
                     const Icon(Icons.search_off_rounded, size: 42, color: Color(0xFF9B8DA8)),
                     const SizedBox(height: 10),
@@ -738,7 +851,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               else
                 ...visible.map(productCard),
               const SizedBox(height: 12),
-              const Center(child: Text('QR Studio Pro  •  معرفی هوشمند محصولات',
+              const Center(child: Text('QR Studio Pro Luxe  •  معرفی هوشمند محصولات',
                 style: TextStyle(color: Color(0xFF9A91A2), fontSize: 10))),
             ]);
         })),
@@ -755,7 +868,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: const Color(0xFFECE7F0)),
+        border: Border.all(color: const Color(0xFFE9E0D3)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -782,7 +895,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     child: ChoiceChip(label: Text(label), selected: filter == value,
       onSelected: (_) => setState(() => filter = value),
       selectedColor: const Color(0xFFE9DDF2), backgroundColor: Colors.white,
-      side: BorderSide(color: filter == value ? const Color(0xFFB79ACB) : const Color(0xFFECE7F0)),
+      side: BorderSide(color: filter == value ? const Color(0xFFB79ACB) : const Color(0xFFE9E0D3)),
       labelStyle: TextStyle(color: filter == value ? const Color(0xFF4C2F66) : const Color(0xFF786D83),
         fontWeight: FontWeight.bold, fontSize: 11)),
   );
@@ -1114,15 +1227,83 @@ class _ProductEditorState extends State<ProductEditor> {
   }
 
   @override
+  Widget _stepIntro(String number, String title, String subtitle, IconData icon) =>
+      Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF211728), Color(0xFF44304B)],
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+          ),
+        ),
+        child: Row(children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: const Color(0x33D4AD68),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Icon(icon, color: const Color(0xFFE7C98E)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('مرحله $number از ۳', style: const TextStyle(
+                  color: Color(0xFFE7C98E), fontSize: 10, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 3),
+              Text(title, style: const TextStyle(
+                  color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900)),
+              const SizedBox(height: 3),
+              Text(subtitle, style: const TextStyle(
+                  color: Color(0xFFD8CEDB), fontSize: 10, height: 1.6)),
+            ],
+          )),
+        ]),
+      );
+
+  @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(widget.product == null ? 'ثبت محصول جدید' : 'ویرایش محصول'),
+          backgroundColor: const Color(0xFFF7F4F0),
         ),
-        body: Form(
-          key: form,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
+        body: DefaultTabController(
+          length: 3,
+          child: Form(
+            key: form,
+            child: Column(children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(17),
+                  border: Border.all(color: const Color(0xFFE9E0D3)),
+                ),
+                child: const TabBar(
+                  labelColor: Color(0xFF2A1B35),
+                  unselectedLabelColor: Color(0xFF92879A),
+                  indicator: BoxDecoration(
+                    color: Color(0xFFF0E5D1),
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  tabs: [
+                    Tab(icon: Icon(Icons.photo_library_outlined, size: 18), text: 'معرفی'),
+                    Tab(icon: Icon(Icons.tune_rounded, size: 18), text: 'مشخصات'),
+                    Tab(icon: Icon(Icons.public_rounded, size: 18), text: 'انتشار'),
+                  ],
+                ),
+              ),
+              Expanded(child: TabBarView(children: [
+                ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                  children: [
+                    _stepIntro('۱', 'معرفی محصول', 'نام، تصاویر و توضیح اولیه محصول را وارد کنید.', Icons.inventory_2_outlined),
               Card(
                 elevation: 0,
                 child: Padding(
@@ -1255,6 +1436,12 @@ class _ProductEditorState extends State<ProductEditor> {
                 ),
               ),
               const SizedBox(height: 18),
+                  ],
+                ),
+                ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                  children: [
+                    _stepIntro('۲', 'جزئیات و ویژگی‌ها', 'مشخصات فنی و اطلاعات دوزبانه را تکمیل کنید.', Icons.fact_check_outlined),
               const Text('مشخصات فنی و ویژگی‌ها', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 5),
               const Text('هر ویژگی را در یک خط بنویسید؛ قالب هر خط: عنوان: مقدار', style: TextStyle(color: Colors.black54, fontSize: 12)),
@@ -1289,6 +1476,12 @@ class _ProductEditorState extends State<ProductEditor> {
               TextField(controller: englishDescription, textDirection: TextDirection.ltr,
                 maxLines: 3, decoration: const InputDecoration(labelText: 'Product description (English)')),
               const SizedBox(height: 18),
+                  ],
+                ),
+                ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                  children: [
+                    _stepIntro('۳', 'راه‌های ارتباط و انتشار', 'فایل‌های تکمیلی و وضعیت نمایش عمومی را تعیین کنید.', Icons.public_rounded),
               const Text('کاتالوگ و ویدئوی معرفی', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 5),
               const Text('لینک مستقیم فایل یا صفحهٔ کاتالوگ و ویدئو را وارد کنید.', style: TextStyle(color: Colors.black54, fontSize: 12)),
@@ -1341,33 +1534,56 @@ class _ProductEditorState extends State<ProductEditor> {
                   ),
                 ]),
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 52,
-                child: FilledButton.icon(
-                  onPressed: busy ? null : save,
-                  icon: busy
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.save_outlined),
-                  label: Text(busy ? 'در حال ذخیره محصول و عکس‌ها...' : 'ذخیره محصول'),
+                  ],
                 ),
+              ])),
+            ]),
+          ),
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border(top: BorderSide(color: Color(0xFFE9E0D3))),
+            ),
+            child: SizedBox(
+              height: 54,
+              child: FilledButton.icon(
+                onPressed: busy ? null : save,
+                icon: busy
+                    ? const SizedBox(
+                        width: 18, height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.save_outlined),
+                label: Text(busy ? 'در حال ذخیره محصول و عکس‌ها...' : 'ذخیره محصول'),
               ),
-            ],
+            ),
           ),
         ),
       );
+
 }
 
-class QRScreen extends StatelessWidget {
+class QRScreen extends StatefulWidget {
   const QRScreen({super.key, required this.product});
   final Map<String, dynamic> product;
+
+  @override
+  State<QRScreen> createState() => _QRScreenState();
+}
+
+class _QRScreenState extends State<QRScreen> {
+  Map<String, dynamic> get product => widget.product;
+  String qrPalette = 'plum';
+  String qrFrame = 'luxe';
+
+  Color get qrForegroundColor {
+    if (qrPalette == 'gold') return const Color(0xFF79521F);
+    if (qrPalette == 'midnight') return const Color(0xFF15101B);
+    return const Color(0xFF2A1B35);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1394,7 +1610,7 @@ class QRScreen extends StatelessWidget {
           final directory = await getTemporaryDirectory();
           final safeCode = (product['code'] ?? product['id'] ?? 'product')
               .toString().replaceAll(RegExp(r'[^A-Za-z0-9_-]'), '_');
-          final file = File('${directory.path}/QR-Studio-Pro-$safeCode.png');
+          final file = File('${directory.path}/QR-Studio-Pro-Luxe-$safeCode.png');
           await file.writeAsBytes(byteData.buffer.asUint8List(), flush: true);
           await SharePlus.instance.share(ShareParams(
             title: 'QR اختصاصی ${product['name'] ?? ''}',
@@ -1417,10 +1633,10 @@ class QRScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5F9),
+      backgroundColor: const Color(0xFFF7F4F0),
       appBar: AppBar(
         title: const Text('پروفایل QR محصول'),
-        backgroundColor: const Color(0xFFF7F5F9),
+        backgroundColor: const Color(0xFFF7F4F0),
         actions: [
           IconButton(
             tooltip: 'ویرایش محصول',
@@ -1454,7 +1670,7 @@ class QRScreen extends StatelessWidget {
                       Row(children: [
                         const Icon(Icons.auto_awesome, color: Color(0xFFE8C37C), size: 18),
                         const SizedBox(width: 7),
-                        const Text('QR STUDIO PRO', style: TextStyle(
+                        const Text('QR STUDIO PRO LUXE', style: TextStyle(
                           color: Color(0xFFE8C37C), fontWeight: FontWeight.w900,
                           fontSize: 10, letterSpacing: 1.2)),
                         const Spacer(),
@@ -1506,22 +1722,41 @@ class QRScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(26),
-                    border: Border.all(color: const Color(0xFFECE7F0)),
+                    border: Border.all(color: const Color(0xFFE9E0D3)),
                     boxShadow: const [BoxShadow(color: Color(0x0E271438), blurRadius: 24, offset: Offset(0, 10))],
                   ),
                   child: Column(children: [
                     const Text('کد اختصاصی معرفی محصول', style: TextStyle(
                       fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF2D203A))),
                     const SizedBox(height: 5),
-                    const Text('با دوربین گوشی اسکن کنید', style: TextStyle(
-                      color: Color(0xFF8B8095), fontSize: 11)),
-                    const SizedBox(height: 18),
+                    const Text('رنگ و قاب دلخواه QR', style: TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF6B5B70))),
+                    const SizedBox(height: 8),
+                    Wrap(spacing: 7, runSpacing: 7, children: [
+                      ChoiceChip(label: const Text('بنفش سلطنتی'), selected: qrPalette == 'plum',
+                        onSelected: (_) => setState(() => qrPalette = 'plum')),
+                      ChoiceChip(label: const Text('طلایی تیره'), selected: qrPalette == 'gold',
+                        onSelected: (_) => setState(() => qrPalette = 'gold')),
+                      ChoiceChip(label: const Text('مشکی'), selected: qrPalette == 'midnight',
+                        onSelected: (_) => setState(() => qrPalette = 'midnight')),
+                    ]),
+                    const SizedBox(height: 8),
+                    Wrap(spacing: 7, children: [
+                      ChoiceChip(label: const Text('قاب لوکس'), selected: qrFrame == 'luxe',
+                        onSelected: (_) => setState(() => qrFrame = 'luxe')),
+                      ChoiceChip(label: const Text('قاب مینیمال'), selected: qrFrame == 'minimal',
+                        onSelected: (_) => setState(() => qrFrame = 'minimal')),
+                    ]),
+                    const SizedBox(height: 15),
                     Container(
                       padding: const EdgeInsets.all(15),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFCFBFD),
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(color: const Color(0xFFEFEAF2)),
+                        color: qrFrame == 'luxe' ? const Color(0xFFFFFCF5) : const Color(0xFFFCFBFD),
+                        borderRadius: BorderRadius.circular(qrFrame == 'luxe' ? 22 : 12),
+                        border: Border.all(
+                          color: qrFrame == 'luxe' ? const Color(0xFFD9B66C) : const Color(0xFFEFEAF2),
+                          width: qrFrame == 'luxe' ? 1.6 : 1,
+                        ),
                       ),
                       child: RepaintBoundary(
                         key: qrCaptureKey,
@@ -1529,9 +1764,9 @@ class QRScreen extends StatelessWidget {
                         data: url,
                         size: 248,
                         backgroundColor: const Color(0xFFFCFBFD),
-                        foregroundColor: const Color(0xFF241A32),
+                        foregroundColor: qrForegroundColor,
                         errorCorrectionLevel: QrErrorCorrectLevel.H,
-                        embeddedImage: const AssetImage('assets/branding/qr-studio-pro-icon.png'),
+                        embeddedImage: const AssetImage('assets/branding/qr-studio-luxe-icon.png'),
                         embeddedImageStyle: const QrEmbeddedImageStyle(
                           size: Size(42, 42),
                         ),
@@ -1551,7 +1786,7 @@ class QRScreen extends StatelessWidget {
                       width: double.infinity,
                       child: FilledButton.icon(
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF2A1B3D),
+                          backgroundColor: const Color(0xFF24172E),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -1594,7 +1829,7 @@ class QRScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: Colors.white, borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFECE7F0))),
+                    border: Border.all(color: const Color(0xFFE9E0D3))),
                   child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Icon(Icons.lightbulb_outline_rounded, color: Color(0xFFC0923F)),
                     SizedBox(width: 10),
