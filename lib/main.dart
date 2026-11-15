@@ -1,9 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
@@ -316,6 +323,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late Future<List<Map<String, dynamic>>> productsFuture;
   String filter = 'all';
   String sort = 'newest';
+  String selectedCategory = 'همه دسته‌ها';
+  String selectedBrand = 'همه برندها';
 
   @override
   void initState() {
@@ -410,10 +419,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
         p['scan_count'] ?? 0,
       ].map(cell).join(',')),
     ];
-    await Clipboard.setData(ClipboardData(text: '\uFEFF' + lines.join('\n')));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('گزارش CSV کپی شد؛ آن را در Excel جای‌گذاری کنید.')));
+    try {
+      final directory = await getTemporaryDirectory();
+      final stamp = DateTime.now().toIso8601String()
+          .replaceAll(':', '-').split('.').first;
+      final file = File('${directory.path}/qr-studio-pro-products-$stamp.csv');
+      await file.writeAsString(
+        '\uFEFF' + lines.join('\r\n'),
+        encoding: utf8,
+        flush: true,
+      );
+      await SharePlus.instance.share(ShareParams(
+        title: 'گزارش محصولات QR Studio Pro',
+        text: 'گزارش محصولات برای بازکردن در Excel یا ذخیره در فایل‌ها.',
+        files: [XFile(file.path)],
+      ));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('فایل CSV آمادهٔ ارسال یا ذخیره است.')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ساخت یا اشتراک‌گذاری فایل CSV انجام نشد.')),
+      );
+    }
   }
 
   Widget statCard(String label, String value, IconData icon, Color tint) =>
@@ -555,6 +585,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(height: 12), Center(child: Text('دریافت اطلاعات انجام نشد. اتصال اینترنت را بررسی کنید.')),
           ]);
           final allRows = snap.data ?? [];
+          final categories = allRows.map((p) => (p['category'] ?? '').toString().trim())
+              .where((value) => value.isNotEmpty).toSet().toList()..sort();
+          final brands = allRows.map((p) => (p['brand'] ?? '').toString().trim())
+              .where((value) => value.isNotEmpty).toSet().toList()..sort();
+          final categoryOptions = ['همه دسته‌ها', ...categories];
+          final brandOptions = ['همه برندها', ...brands];
+          final activeCategory = categoryOptions.contains(selectedCategory)
+              ? selectedCategory : 'همه دسته‌ها';
+          final activeBrand = brandOptions.contains(selectedBrand)
+              ? selectedBrand : 'همه برندها';
           final published = allRows.where((p) => p['is_active'] == true && p['is_published'] == true).length;
           final drafts = allRows.where((p) => p['is_active'] == true && p['is_published'] != true).length;
           final archived = allRows.where((p) => p['is_active'] != true).length;
@@ -568,7 +608,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 (filter == 'published' && active && p['is_published'] == true) ||
                 (filter == 'draft' && active && p['is_published'] != true) ||
                 (filter == 'archived' && !active);
-            return matchesText && matchesFilter;
+            final matchesCategory = activeCategory == 'همه دسته‌ها' ||
+                (p['category'] ?? '').toString().trim() == activeCategory;
+            final matchesBrand = activeBrand == 'همه برندها' ||
+                (p['brand'] ?? '').toString().trim() == activeBrand;
+            return matchesText && matchesFilter && matchesCategory && matchesBrand;
           }).toList();
           if (sort == 'name') {
             visible.sort((a, b) => (a['name'] ?? '').toString().compareTo((b['name'] ?? '').toString()));
@@ -645,6 +689,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _filterChip('همه', 'all'), _filterChip('منتشرشده', 'published'),
                   _filterChip('پیش‌نویس', 'draft'), _filterChip('بایگانی', 'archived'),
                 ])),
+              const SizedBox(height: 10),
+              Row(children: [
+                _facetDropdown(
+                  value: activeCategory,
+                  options: categoryOptions,
+                  onChanged: (value) => setState(() =>
+                      selectedCategory = value ?? 'همه دسته‌ها'),
+                ),
+                const SizedBox(width: 8),
+                _facetDropdown(
+                  value: activeBrand,
+                  options: brandOptions,
+                  onChanged: (value) => setState(() =>
+                      selectedBrand = value ?? 'همه برندها'),
+                ),
+              ]),
               const SizedBox(height: 12),
               Row(children: [
                 const Text('فهرست محصولات', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF2B2038))),
@@ -682,6 +742,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: TextStyle(color: Color(0xFF9A91A2), fontSize: 10))),
             ]);
         })),
+  );
+
+  Widget _facetDropdown({
+    required String value,
+    required List<String> options,
+    required ValueChanged<String?> onChanged,
+  }) => Expanded(
+    child: Container(
+      height: 50,
+      padding: const EdgeInsetsDirectional.only(start: 12, end: 7),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: const Color(0xFFECE7F0)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: options.contains(value) ? value : options.first,
+          isExpanded: true,
+          icon: const Icon(Icons.expand_more_rounded, size: 19),
+          style: const TextStyle(
+            color: Color(0xFF594B66),
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
+          items: options.map((option) => DropdownMenuItem<String>(
+            value: option,
+            child: Text(option, maxLines: 1, overflow: TextOverflow.ellipsis),
+          )).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    ),
   );
 
   Widget _filterChip(String label, String value) => Padding(
@@ -1286,6 +1379,42 @@ class QRScreen extends StatelessWidget {
     final imageCount = rawImages is List ? rawImages.length : 0;
     final specs = product['specifications'];
     final specCount = specs is Map ? specs.length : 0;
+    final qrCaptureKey = GlobalKey();
+
+    Future<void> shareQrImage() async {
+      try {
+        final renderObject = qrCaptureKey.currentContext?.findRenderObject();
+        if (renderObject is! RenderRepaintBoundary) {
+          throw StateError('QR هنوز آمادهٔ خروجی نیست.');
+        }
+        final image = await renderObject.toImage(pixelRatio: 4.0);
+        try {
+          final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+          if (byteData == null) throw StateError('تبدیل تصویر QR انجام نشد.');
+          final directory = await getTemporaryDirectory();
+          final safeCode = (product['code'] ?? product['id'] ?? 'product')
+              .toString().replaceAll(RegExp(r'[^A-Za-z0-9_-]'), '_');
+          final file = File('${directory.path}/QR-Studio-Pro-$safeCode.png');
+          await file.writeAsBytes(byteData.buffer.asUint8List(), flush: true);
+          await SharePlus.instance.share(ShareParams(
+            title: 'QR اختصاصی ${product['name'] ?? ''}',
+            text: 'کد QR برای مشاهدهٔ صفحهٔ معرفی محصول:\\n$url',
+            files: [XFile(file.path)],
+          ));
+        } finally {
+          image.dispose();
+        }
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تصویر QR با کیفیت بالا آمادهٔ ارسال یا ذخیره است.')),
+        );
+      } catch (_) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ساخت تصویر QR انجام نشد؛ دوباره تلاش کنید.')),
+        );
+      }
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F5F9),
@@ -1394,7 +1523,9 @@ class QRScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(22),
                         border: Border.all(color: const Color(0xFFEFEAF2)),
                       ),
-                      child: QrImageView(
+                      child: RepaintBoundary(
+                        key: qrCaptureKey,
+                        child: QrImageView(
                         data: url,
                         size: 248,
                         backgroundColor: const Color(0xFFFCFBFD),
@@ -1403,6 +1534,7 @@ class QRScreen extends StatelessWidget {
                         embeddedImage: const AssetImage('assets/branding/qr-studio-pro-icon.png'),
                         embeddedImageStyle: const QrEmbeddedImageStyle(
                           size: Size(42, 42),
+                        ),
                         ),
                       ),
                     ),
@@ -1432,6 +1564,23 @@ class QRScreen extends StatelessWidget {
                         },
                         icon: const Icon(Icons.content_copy_rounded),
                         label: const Text('کپی لینک صفحه محصول'),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: shareQrImage,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF5A426C),
+                          side: const BorderSide(color: Color(0xFFDCCFE5)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: const Icon(Icons.image_outlined),
+                        label: const Text('دریافت و اشتراک‌گذاری تصویر QR (PNG)'),
                       ),
                     ),
                     const SizedBox(height: 7),
