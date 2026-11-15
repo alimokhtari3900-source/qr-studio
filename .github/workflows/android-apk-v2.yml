@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Prepare Pro brand icon assets
+      - name: Prepare Pro Luxe brand icon assets
         run: |
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin
@@ -28,17 +28,17 @@ jobs:
           cache: true
       - name: Generate independent Android project
         run: flutter create --project-name qr_studio_pro_luxe --org com.qrstudio.pro.luxe --platforms=android .
-      - name: Enable internet access and set Pro app name
+      - name: Enable internet access and set Pro Luxe app name
         run: |
           sed -i '/<application/i\    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
-          sed -i 's/android:label="qr_studio_pro"/android:label="QR Studio Pro Luxe"/' android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:label="qr_studio_pro_luxe"/android:label="QR Studio Pro Luxe"/' android/app/src/main/AndroidManifest.xml
       - name: Install packages
         run: flutter pub get
       - name: Generate Pro Luxe launcher icons
         run: dart run flutter_launcher_icons
       - name: Static analysis
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
-      - name: Build installable Pro APK
+      - name: Build installable Pro Luxe APK
         env:
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
@@ -48,6 +48,8 @@ jobs:
           if [ -z "$SITE_URL" ]; then SITE_URL="https://alimokhtari3900-source.github.io/qr-studio/luxe"; fi
           case "$SITE_URL" in
             */luxe) ;;
+            */pro) SITE_URL="${SITE_URL%/pro}/luxe" ;;
+            */qr-studio) SITE_URL="$SITE_URL/luxe" ;;
             *) SITE_URL="$SITE_URL/luxe" ;;
           esac
           flutter build apk --release \
@@ -59,5 +61,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: QR-Studio-Pro-Luxe-APK
-          path: output/QR-Studio-Pro.apk
+          path: output/QR-Studio-Pro-Luxe.apk
           retention-days: 30
