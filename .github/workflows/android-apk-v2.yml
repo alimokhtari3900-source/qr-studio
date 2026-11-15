@@ -1,8 +1,8 @@
-name: Build QR Studio Pro Android APK
+name: Build QR Studio Pro Luxe Android APK
 'on':
   workflow_dispatch:
   push:
-    branches: [version-2-pro]
+    branches: [version-3-luxe]
 permissions:
   contents: read
   actions: read
@@ -16,8 +16,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin
           mkdir -p assets/branding
-          rsvg-convert -w 1024 -h 1024 -o assets/branding/qr-studio-pro-icon.png assets/branding/qr-studio-pro-icon.svg
-          rsvg-convert -w 1024 -h 1024 -o assets/branding/qr-studio-pro-foreground.png assets/branding/qr-studio-pro-foreground.svg
+          rsvg-convert -w 1024 -h 1024 -o assets/branding/qr-studio-luxe-icon.png assets/branding/qr-studio-luxe-icon.svg
+          rsvg-convert -w 1024 -h 1024 -o assets/branding/qr-studio-luxe-foreground.png assets/branding/qr-studio-luxe-foreground.svg
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -27,14 +27,14 @@ jobs:
           channel: stable
           cache: true
       - name: Generate independent Android project
-        run: flutter create --project-name qr_studio_pro --org com.qrstudio.pro --platforms=android .
+        run: flutter create --project-name qr_studio_pro_luxe --org com.qrstudio.pro.luxe --platforms=android .
       - name: Enable internet access and set Pro app name
         run: |
           sed -i '/<application/i\    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
-          sed -i 's/android:label="qr_studio_pro"/android:label="QR Studio Pro"/' android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:label="qr_studio_pro"/android:label="QR Studio Pro Luxe"/' android/app/src/main/AndroidManifest.xml
       - name: Install packages
         run: flutter pub get
-      - name: Generate Pro launcher icons
+      - name: Generate Pro Luxe launcher icons
         run: dart run flutter_launcher_icons
       - name: Static analysis
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
@@ -45,19 +45,19 @@ jobs:
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
         run: |
           SITE_URL="$PUBLIC_SITE_URL"
-          if [ -z "$SITE_URL" ]; then SITE_URL="https://alimokhtari3900-source.github.io/qr-studio"; fi
+          if [ -z "$SITE_URL" ]; then SITE_URL="https://alimokhtari3900-source.github.io/qr-studio/luxe"; fi
           case "$SITE_URL" in
-            */pro) ;;
-            *) SITE_URL="$SITE_URL/pro" ;;
+            */luxe) ;;
+            *) SITE_URL="$SITE_URL/luxe" ;;
           esac
           flutter build apk --release \
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
             --dart-define=SUPABASE_PUBLISHABLE_KEY="$SUPABASE_PUBLISHABLE_KEY" \
             --dart-define=PUBLIC_SITE_URL="$SITE_URL"
           mkdir -p output
-          cp build/app/outputs/flutter-apk/app-release.apk output/QR-Studio-Pro.apk
+          cp build/app/outputs/flutter-apk/app-release.apk output/QR-Studio-Pro-Luxe.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: QR-Studio-Pro-APK
+          name: QR-Studio-Pro-Luxe-APK
           path: output/QR-Studio-Pro.apk
           retention-days: 30
