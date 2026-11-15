@@ -732,9 +732,26 @@ class _ProductEditorState extends State<ProductEditor> {
   late final contactWebsite = TextEditingController(
     text: _contactValue('website'),
   );
+  late final customFields = TextEditingController(
+    text: _formatMap(widget.product?['custom_fields']),
+  );
+  late final englishName = TextEditingController(
+    text: _translationValue('name'),
+  );
+  late final englishDescription = TextEditingController(
+    text: _translationValue('description'),
+  );
+  late final catalogUrl = TextEditingController(
+    text: _attachmentValue('catalog'),
+  );
+  late final videoUrl = TextEditingController(
+    text: _attachmentValue('video'),
+  );
   final List<XFile> selectedImages = [];
   List<String> existingImages = [];
+  List<dynamic> preservedAttachments = [];
   bool published = false;
+  bool active = true;
   bool busy = false;
   bool picking = false;
 
@@ -742,6 +759,15 @@ class _ProductEditorState extends State<ProductEditor> {
   void initState() {
     super.initState();
     published = widget.product?['is_published'] == true;
+    active = widget.product?['is_active'] != false;
+    final rawAttachments = widget.product?['attachments'];
+    if (rawAttachments is List) {
+      preservedAttachments = rawAttachments.where((item) {
+        if (item is! Map) return false;
+        final type = item['type']?.toString();
+        return type != 'catalog' && type != 'video';
+      }).toList();
+    }
     final rawImages = widget.product?['images'];
     if (rawImages is List) {
       existingImages = rawImages
@@ -759,6 +785,26 @@ class _ProductEditorState extends State<ProductEditor> {
   String _contactValue(String key) {
     final raw = widget.product?['contact'];
     if (raw is Map) return raw[key]?.toString() ?? '';
+    return '';
+  }
+
+  String _translationValue(String key) {
+    final raw = widget.product?['translations'];
+    if (raw is Map && raw['en'] is Map) {
+      return raw['en'][key]?.toString() ?? '';
+    }
+    return '';
+  }
+
+  String _attachmentValue(String type) {
+    final raw = widget.product?['attachments'];
+    if (raw is List) {
+      for (final item in raw) {
+        if (item is Map && item['type']?.toString() == type) {
+          return item['url']?.toString() ?? '';
+        }
+      }
+    }
     return '';
   }
 
@@ -872,13 +918,28 @@ class _ProductEditorState extends State<ProductEditor> {
         'description': description.text.trim(),
         'images': imageUrls,
         'specifications': _parseLines(specifications.text),
+        'custom_fields': _parseLines(customFields.text),
+        'attachments': [
+          ...preservedAttachments,
+          if (catalogUrl.text.trim().isNotEmpty)
+            {'title': 'دانلود کاتالوگ', 'type': 'catalog', 'url': catalogUrl.text.trim()},
+          if (videoUrl.text.trim().isNotEmpty)
+            {'title': 'ویدئوی معرفی', 'type': 'video', 'url': videoUrl.text.trim()},
+        ],
+        'translations': {
+          if (englishName.text.trim().isNotEmpty || englishDescription.text.trim().isNotEmpty)
+            'en': {
+              if (englishName.text.trim().isNotEmpty) 'name': englishName.text.trim(),
+              if (englishDescription.text.trim().isNotEmpty) 'description': englishDescription.text.trim(),
+            },
+        },
         'contact': {
           if (contactPhone.text.trim().isNotEmpty) 'phone': contactPhone.text.trim(),
           if (contactWhatsapp.text.trim().isNotEmpty) 'whatsapp': contactWhatsapp.text.trim(),
           if (contactWebsite.text.trim().isNotEmpty) 'website': contactWebsite.text.trim(),
         },
         'is_published': published,
-        'is_active': true,
+        'is_active': active,
       };
       final query = client.from('products');
       if (widget.product == null) {
@@ -951,6 +1012,11 @@ class _ProductEditorState extends State<ProductEditor> {
     contactPhone.dispose();
     contactWhatsapp.dispose();
     contactWebsite.dispose();
+    customFields.dispose();
+    englishName.dispose();
+    englishDescription.dispose();
+    catalogUrl.dispose();
+    videoUrl.dispose();
     super.dispose();
   }
 
@@ -1109,6 +1175,39 @@ class _ProductEditorState extends State<ProductEditor> {
                 ),
               ),
               const SizedBox(height: 18),
+              const Text('ویژگی‌های برجسته', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 5),
+              const Text('موارد مهمی که می‌خواهید جداگانه در صفحه مشتری دیده شوند؛ هر خط: عنوان: مقدار', style: TextStyle(color: Colors.black54, fontSize: 12)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: customFields,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  hintText: 'مثال: ضمانت: ۲۴ ماه، ساخت: ایران، کاربرد: فضای داخلی',
+                  alignLabelWithHint: true,
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text('اطلاعات انگلیسی (اختیاری)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 8),
+              TextField(controller: englishName, textDirection: TextDirection.ltr,
+                decoration: const InputDecoration(labelText: 'Product name (English)')),
+              const SizedBox(height: 10),
+              TextField(controller: englishDescription, textDirection: TextDirection.ltr,
+                maxLines: 3, decoration: const InputDecoration(labelText: 'Product description (English)')),
+              const SizedBox(height: 18),
+              const Text('کاتالوگ و ویدئوی معرفی', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 5),
+              const Text('لینک مستقیم فایل یا صفحهٔ کاتالوگ و ویدئو را وارد کنید.', style: TextStyle(color: Colors.black54, fontSize: 12)),
+              const SizedBox(height: 8),
+              TextField(controller: catalogUrl, textDirection: TextDirection.ltr,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(labelText: 'لینک کاتالوگ / فایل PDF', prefixIcon: Icon(Icons.picture_as_pdf_outlined))),
+              const SizedBox(height: 10),
+              TextField(controller: videoUrl, textDirection: TextDirection.ltr,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(labelText: 'لینک ویدئوی معرفی', prefixIcon: Icon(Icons.play_circle_outline))),
+              const SizedBox(height: 18),
               const Text('راه‌های ارتباط با مجموعه (اختیاری)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 8),
               TextField(
@@ -1131,14 +1230,23 @@ class _ProductEditorState extends State<ProductEditor> {
               const SizedBox(height: 12),
               Card(
                 elevation: 0,
-                child: SwitchListTile(
-                  value: published,
-                  onChanged: busy ? null : (value) => setState(() => published = value),
-                  title: const Text('انتشار عمومی محصول'),
-                  subtitle: const Text(
-                    'برای اینکه همه بتوانند با اسکن QR صفحه محصول را ببینند، این گزینه باید روشن باشد.',
+                child: Column(children: [
+                  SwitchListTile(
+                    value: published,
+                    onChanged: busy ? null : (value) => setState(() => published = value),
+                    secondary: const Icon(Icons.public_rounded),
+                    title: const Text('انتشار عمومی محصول'),
+                    subtitle: const Text('با فعال‌کردن این گزینه، صفحه محصول از طریق QR برای همه قابل مشاهده می‌شود.'),
                   ),
-                ),
+                  const Divider(height: 1, indent: 16, endIndent: 16),
+                  SwitchListTile(
+                    value: active,
+                    onChanged: busy ? null : (value) => setState(() => active = value),
+                    secondary: const Icon(Icons.inventory_2_outlined),
+                    title: const Text('محصول فعال باشد'),
+                    subtitle: const Text('محصول غیرفعال در فهرست عمومی نمایش داده نمی‌شود؛ اطلاعاتش حذف نخواهد شد.'),
+                  ),
+                ]),
               ),
               const SizedBox(height: 16),
               SizedBox(
