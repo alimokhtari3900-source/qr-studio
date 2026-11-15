@@ -1750,28 +1750,46 @@ class _QRScreenState extends State<QRScreen> {
                     const Text('پیش از چاپ، QR را با دوربین گوشی آزمایش کنید.',
                       style: TextStyle(fontSize: 10, color: Color(0xFF8B8095))),
                     const SizedBox(height: 15),
-                    Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: qrFrame == 'luxe' ? const Color(0xFFFFFCF5) : const Color(0xFFFCFBFD),
-                        borderRadius: BorderRadius.circular(qrFrame == 'luxe' ? 22 : 12),
-                        border: Border.all(
-                          color: qrFrame == 'luxe' ? const Color(0xFFD9B66C) : const Color(0xFFEFEAF2),
-                          width: qrFrame == 'luxe' ? 1.6 : 1,
+                    RepaintBoundary(
+                      key: qrCaptureKey,
+                      child: Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: qrFrame == 'luxe' ? const Color(0xFFFFFCF5) : const Color(0xFFFCFBFD),
+                          borderRadius: BorderRadius.circular(qrFrame == 'luxe' ? 22 : 12),
+                          border: Border.all(
+                            color: qrFrame == 'luxe' ? const Color(0xFFD9B66C) : const Color(0xFFEFEAF2),
+                            width: qrFrame == 'luxe' ? 1.6 : 1,
+                          ),
                         ),
-                      ),
-                      child: RepaintBoundary(
-                        key: qrCaptureKey,
-                        child: QrImageView(
-                        data: url,
-                        size: 248,
-                        backgroundColor: const Color(0xFFFCFBFD),
-                        foregroundColor: qrForegroundColor,
-                        errorCorrectionLevel: QrErrorCorrectLevel.H,
-                        embeddedImage: const AssetImage('assets/branding/qr-studio-luxe-icon.png'),
-                        embeddedImageStyle: const QrEmbeddedImageStyle(
-                          size: Size(42, 42),
-                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            QrImageView(
+                              data: url,
+                              size: 248,
+                              backgroundColor: qrFrame == 'luxe'
+                                  ? const Color(0xFFFFFCF5)
+                                  : const Color(0xFFFCFBFD),
+                              foregroundColor: qrForegroundColor,
+                              errorCorrectionLevel: QrErrorCorrectLevel.H,
+                              embeddedImage: const AssetImage('assets/branding/qr-studio-luxe-icon.png'),
+                              embeddedImageStyle: const QrEmbeddedImageStyle(
+                                size: Size(42, 42),
+                              ),
+                            ),
+                            if (qrFrame == 'luxe')
+                              const Padding(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text('SCAN TO DISCOVER',
+                                  style: TextStyle(
+                                    color: Color(0xFF8B6B35),
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 2.1,
+                                  )),
+                              ),
+                          ],
                         ),
                       ),
                     ),
