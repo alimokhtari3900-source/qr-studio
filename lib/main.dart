@@ -1226,7 +1226,6 @@ class _ProductEditorState extends State<ProductEditor> {
     super.dispose();
   }
 
-  @override
   Widget _stepIntro(String number, String title, String subtitle, IconData icon) =>
       Container(
         margin: const EdgeInsets.only(bottom: 14),
@@ -1747,6 +1746,9 @@ class _QRScreenState extends State<QRScreen> {
                       ChoiceChip(label: const Text('قاب مینیمال'), selected: qrFrame == 'minimal',
                         onSelected: (_) => setState(() => qrFrame = 'minimal')),
                     ]),
+                    const SizedBox(height: 10),
+                    const Text('پیش از چاپ، QR را با دوربین گوشی آزمایش کنید.',
+                      style: TextStyle(fontSize: 10, color: Color(0xFF8B8095))),
                     const SizedBox(height: 15),
                     Container(
                       padding: const EdgeInsets.all(15),
