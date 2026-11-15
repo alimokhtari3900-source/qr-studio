@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -9,7 +10,7 @@ const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const supabasePublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 const publicSiteUrl = String.fromEnvironment(
   'PUBLIC_SITE_URL',
-  defaultValue: 'https://alimokhtari3900-source.github.io/qr-studio',
+  defaultValue: 'https://alimokhtari3900-source.github.io/qr-studio/pro',
 );
 const productImageBucket = 'product-images';
 const maxProductImages = 6;
@@ -34,7 +35,7 @@ class QRStudioApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'QR Studio',
+        title: 'QR Studio Pro',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
@@ -82,7 +83,7 @@ class SetupRequired extends StatelessWidget {
                 const BrandMark(),
                 const SizedBox(height: 20),
                 const Text(
-                  'QR Studio',
+                  'QR Studio Pro',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
@@ -117,54 +118,16 @@ class BrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: 104,
-        height: 104,
+        width: 112,
+        height: 112,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(29),
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF17152D),
-              Color(0xFF542A83),
-              Color(0xFF111B44),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          borderRadius: BorderRadius.circular(30),
           boxShadow: const [
-            BoxShadow(
-              color: Color(0x443A1B75),
-              blurRadius: 24,
-              offset: Offset(0, 10),
-            ),
+            BoxShadow(color: Color(0x33332248), blurRadius: 28, offset: Offset(0, 11)),
           ],
         ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            const Icon(Icons.qr_code_2_rounded, color: Colors.white, size: 72),
-            Positioned(
-              right: 13,
-              top: 11,
-              child: Icon(
-                Icons.auto_awesome,
-                color: Colors.amber.shade300,
-                size: 19,
-              ),
-            ),
-            Positioned(
-              bottom: 11,
-              left: 15,
-              child: Container(
-                width: 27,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade400,
-                  borderRadius: BorderRadius.circular(9),
-                ),
-              ),
-            ),
-          ],
-        ),
+        clipBehavior: Clip.antiAlias,
+        child: Image.asset('assets/branding/qr-studio-pro-icon.png', fit: BoxFit.cover),
       );
 }
 
