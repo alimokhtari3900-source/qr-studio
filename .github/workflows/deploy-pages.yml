@@ -5,6 +5,7 @@ name: Publish QR Studio product pages
     branches: [main]
     paths:
       - 'web/**'
+      - 'assets/branding/**'
       - '.github/workflows/deploy-pages.yml'
       - 'supabase/migrations/**'
   workflow_dispatch:
@@ -52,6 +53,7 @@ jobs:
           html = html.replace("__SUPABASE_URL_JSON__", json.dumps(url))
           html = html.replace("__SUPABASE_PUBLISHABLE_KEY_JSON__", json.dumps(key))
           (output / "product.html").write_text(html, encoding="utf-8")
+          (output / "favicon.svg").write_text(Path("assets/branding/qr-studio-icon.svg").read_text(encoding="utf-8"), encoding="utf-8")
           (output / ".nojekyll").write_text("", encoding="utf-8")
           PY
 
