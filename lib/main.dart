@@ -1280,90 +1280,179 @@ class QRScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseUrl = publicSiteUrl.trim().replaceFirst(RegExp(r'/+$'), '');
     final id = Uri.encodeQueryComponent(product['id'].toString());
-    final url = '$baseUrl/product.html?id=$id';
-    final isPublished =
-        product['is_published'] == true && product['is_active'] == true;
+    final url = baseUrl + '/product.html?id=' + id;
+    final isPublished = product['is_published'] == true && product['is_active'] == true;
     final rawImages = product['images'];
     final imageCount = rawImages is List ? rawImages.length : 0;
+    final specs = product['specifications'];
+    final specCount = specs is Map ? specs.length : 0;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('QR اختصاصی محصول')),
+      backgroundColor: const Color(0xFFF7F5F9),
+      appBar: AppBar(
+        title: const Text('پروفایل QR محصول'),
+        backgroundColor: const Color(0xFFF7F5F9),
+        actions: [
+          IconButton(
+            tooltip: 'ویرایش محصول',
+            onPressed: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => ProductEditor(product: product))),
+            icon: const Icon(Icons.edit_outlined),
+          ),
+        ],
+      ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(18, 8, 18, 32),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 440),
+            constraints: const BoxConstraints(maxWidth: 500),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  product['name']?.toString() ?? '',
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(26),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF171222), Color(0xFF49325F)],
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [
+                        const Icon(Icons.auto_awesome, color: Color(0xFFE8C37C), size: 18),
+                        const SizedBox(width: 7),
+                        const Text('QR STUDIO PRO', style: TextStyle(
+                          color: Color(0xFFE8C37C), fontWeight: FontWeight.w900,
+                          fontSize: 10, letterSpacing: 1.2)),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isPublished ? const Color(0x332BBD83) : const Color(0x33E8B35C),
+                            borderRadius: BorderRadius.circular(20)),
+                          child: Text(isPublished ? 'عمومی و فعال' : 'خصوصی / غیرفعال',
+                            style: TextStyle(color: isPublished ? const Color(0xFF9AF0C8) : const Color(0xFFFFD99B),
+                              fontSize: 10, fontWeight: FontWeight.bold)),
+                        ),
+                      ]),
+                      const SizedBox(height: 18),
+                      Text(product['name']?.toString() ?? 'محصول بدون نام',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 21)),
+                      const SizedBox(height: 7),
+                      Text([
+                        if ((product['brand'] ?? '').toString().isNotEmpty) product['brand'].toString(),
+                        if ((product['category'] ?? '').toString().isNotEmpty) product['category'].toString(),
+                        if ((product['code'] ?? '').toString().isNotEmpty) 'کد ' + product['code'].toString(),
+                      ].join('  •  '),
+                        style: const TextStyle(color: Color(0xFFD9D0E2), fontSize: 12)),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text('کد: ${product['code'] ?? '-'}  •  $imageCount عکس'),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 if (!isPublished)
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(15),
+                    margin: const EdgeInsets.only(bottom: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF3D8),
-                      borderRadius: BorderRadius.circular(14),
+                      color: const Color(0xFFFFF3DD),
+                      borderRadius: BorderRadius.circular(17),
+                      border: Border.all(color: const Color(0xFFF1D9AE)),
                     ),
-                    child: const Text(
-                      'این محصول هنوز عمومی نشده است. برای نمایش آن پس از اسکن، از بخش ویرایش گزینه «انتشار عمومی محصول» را روشن کنید.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Color(0xFF795312)),
-                    ),
+                    child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Icon(Icons.info_outline_rounded, color: Color(0xFF996515)),
+                      SizedBox(width: 10),
+                      Expanded(child: Text(
+                        'برای اینکه مشتری بعد از اسکن بتواند صفحه محصول را ببیند، محصول باید فعال و انتشار عمومی آن روشن باشد.',
+                        style: TextStyle(color: Color(0xFF795312), height: 1.6, fontSize: 12))),
+                    ]),
                   ),
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x12000000),
-                        blurRadius: 22,
-                        offset: Offset(0, 8),
+                    borderRadius: BorderRadius.circular(26),
+                    border: Border.all(color: const Color(0xFFECE7F0)),
+                    boxShadow: const [BoxShadow(color: Color(0x0E271438), blurRadius: 24, offset: Offset(0, 10))],
+                  ),
+                  child: Column(children: [
+                    const Text('کد اختصاصی معرفی محصول', style: TextStyle(
+                      fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF2D203A))),
+                    const SizedBox(height: 5),
+                    const Text('با دوربین گوشی اسکن کنید', style: TextStyle(
+                      color: Color(0xFF8B8095), fontSize: 11)),
+                    const SizedBox(height: 18),
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFCFBFD),
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: const Color(0xFFEFEAF2)),
                       ),
-                    ],
-                  ),
-                  child: QrImageView(
-                    data: url,
-                    size: 240,
-                    backgroundColor: Colors.white,
-                    errorCorrectionLevel: QrErrorCorrectLevel.H,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'این کد را اسکن کنید تا صفحه معرفی محصول باز شود.',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                SelectableText(
-                  url,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Color(0xFF542A83), fontSize: 12),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('نشانی صفحه را می‌توانید لمس طولانی و کپی کنید.'),
+                      child: QrImageView(
+                        data: url,
+                        size: 248,
+                        backgroundColor: const Color(0xFFFCFBFD),
+                        foregroundColor: const Color(0xFF241A32),
+                        errorCorrectionLevel: QrErrorCorrectLevel.H,
+                        embeddedImage: const AssetImage('assets/branding/qr-studio-pro-icon.png'),
+                        embeddedImageStyle: const QrEmbeddedImageStyle(
+                          size: Size(42, 42),
+                        ),
+                      ),
                     ),
-                  ),
-                  icon: const Icon(Icons.info_outline),
-                  label: const Text('راهنمای اشتراک‌گذاری QR'),
+                    const SizedBox(height: 18),
+                    Row(children: [
+                      _metricPill(Icons.photo_library_outlined, imageCount.toString() + ' تصویر'),
+                      const SizedBox(width: 8),
+                      _metricPill(Icons.fact_check_outlined, specCount.toString() + ' مشخصه'),
+                      const SizedBox(width: 8),
+                      _metricPill(Icons.qr_code_scanner_rounded, (product['scan_count'] ?? 0).toString() + ' اسکن'),
+                    ]),
+                    const SizedBox(height: 17),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF2A1B3D),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        ),
+                        onPressed: () async {
+                          await Clipboard.setData(ClipboardData(text: url));
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('لینک صفحه محصول کپی شد.')));
+                        },
+                        icon: const Icon(Icons.content_copy_rounded),
+                        label: const Text('کپی لینک صفحه محصول'),
+                      ),
+                    ),
+                    const SizedBox(height: 7),
+                    SelectableText(url, textAlign: TextAlign.center,
+                      style: const TextStyle(color: Color(0xFF71518C), fontSize: 10)),
+                  ]),
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'شناسه QR با ویرایش اطلاعات محصول تغییر نمی‌کند.',
-                  style: TextStyle(color: Colors.black54, fontSize: 12),
+                const SizedBox(height: 13),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.white, borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFECE7F0))),
+                  child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Icon(Icons.lightbulb_outline_rounded, color: Color(0xFFC0923F)),
+                    SizedBox(width: 10),
+                    Expanded(child: Text(
+                      'پیشنهاد: این QR را روی برچسب، بسته‌بندی یا کارت معرفی محصول چاپ کنید. قبل از چاپ، آن را با یک گوشی دیگر آزمایش کنید.',
+                      style: TextStyle(color: Color(0xFF74697F), fontSize: 11, height: 1.65))),
+                  ]),
                 ),
               ],
             ),
@@ -1372,4 +1461,18 @@ class QRScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _metricPill(IconData icon, String label) => Expanded(
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 5),
+      decoration: BoxDecoration(color: const Color(0xFFF6F2F8), borderRadius: BorderRadius.circular(12)),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(icon, size: 13, color: const Color(0xFF84639D)),
+        const SizedBox(width: 4),
+        Flexible(child: Text(label, overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 9, color: Color(0xFF65566F), fontWeight: FontWeight.w700))),
+      ]),
+    ),
+  );
 }
+
