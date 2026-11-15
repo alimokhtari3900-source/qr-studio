@@ -11,6 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare brand icon assets
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin
+          mkdir -p assets/branding
+          rsvg-convert -w 1024 -h 1024 -o assets/branding/qr-studio-icon.png assets/branding/qr-studio-icon.svg
+          rsvg-convert -w 1024 -h 1024 -o assets/branding/qr-studio-foreground.png assets/branding/qr-studio-foreground.svg
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -21,11 +28,14 @@ jobs:
           cache: true
       - name: Generate Android project
         run: flutter create --project-name qr_studio --org com.qrstudio --platforms=android .
-      - name: Enable Android internet access
+      - name: Enable Android internet access and set app label
         run: |
           sed -i '/<application/i\    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:label="qr_studio"/android:label="QR Studio"/' android/app/src/main/AndroidManifest.xml
       - name: Install packages
         run: flutter pub get
+      - name: Generate Android launcher icons
+        run: dart run flutter_launcher_icons
       - name: Static analysis
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Build installable APK
