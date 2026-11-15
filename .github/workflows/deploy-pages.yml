@@ -53,6 +53,15 @@ jobs:
           html = html.replace("__SUPABASE_URL_JSON__", json.dumps(url))
           html = html.replace("__SUPABASE_PUBLISHABLE_KEY_JSON__", json.dumps(key))
           (output / "product.html").write_text(html, encoding="utf-8")
+
+          pro_output = output / "pro"
+          pro_output.mkdir(parents=True, exist_ok=True)
+          pro_html = Path("web/pro/product.html").read_text(encoding="utf-8")
+          pro_html = pro_html.replace("__SUPABASE_URL_JSON__", json.dumps(url))
+          pro_html = pro_html.replace("__SUPABASE_PUBLISHABLE_KEY_JSON__", json.dumps(key))
+          (pro_output / "product.html").write_text(pro_html, encoding="utf-8")
+          (pro_output / "favicon.svg").write_text(Path("web/pro/favicon.svg").read_text(encoding="utf-8"), encoding="utf-8")
+
           (output / "favicon.svg").write_text(Path("assets/branding/qr-studio-icon.svg").read_text(encoding="utf-8"), encoding="utf-8")
           (output / ".nojekyll").write_text("", encoding="utf-8")
           PY
