@@ -54,9 +54,9 @@ class QRStudioApp extends StatelessWidget {
           scaffoldBackgroundColor: const Color(0xFFF7F4F0),
           pageTransitionsTheme: const PageTransitionsTheme(builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.iOS: FadeUpwardsPageTransitionsBuilder(),
             TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
-            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),
             TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
           }),
           appBarTheme: const AppBarTheme(
