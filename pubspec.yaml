@@ -1,7 +1,7 @@
 name: qr_studio_pro
 description: QR Studio Pro premium product management app
 publish_to: none
-version: 2.0.0+1
+version: 2.1.0+2
 
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -12,6 +12,9 @@ dependencies:
   supabase_flutter: ^2.18.3
   qr_flutter: ^4.1.0
   image_picker: ^1.2.3
+  cross_file: ^0.3.5+5
+  path_provider: ^2.1.6
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:
