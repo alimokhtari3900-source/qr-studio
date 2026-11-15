@@ -637,12 +637,12 @@ class _ProductEditorState extends State<ProductEditor> {
     return value.entries
         .where((entry) => entry.value != null && entry.value.toString().trim().isNotEmpty)
         .map((entry) => '${entry.key}: ${entry.value}')
-        .join('\\n');
+        .join(String.fromCharCode(10));
   }
 
   Map<String, String> _parseLines(String text) {
     final result = <String, String>{};
-    for (final line in text.split('\\n')) {
+    for (final line in text.split(String.fromCharCode(10))) {
       final separator = line.indexOf(':');
       if (separator <= 0) continue;
       final key = line.substring(0, separator).trim();
@@ -974,7 +974,7 @@ class _ProductEditorState extends State<ProductEditor> {
                 controller: specifications,
                 maxLines: 5,
                 decoration: const InputDecoration(
-                  hintText: 'جنس: سنگ طبیعی\\nابعاد: ۴۰ × ۴۰\\nرنگ: کرم',
+                  hintText: 'مثال: جنس: سنگ طبیعی، ابعاد: ۴۰ × ۴۰، رنگ: کرم',
                   alignLabelWithHint: true,
                 ),
               ),
