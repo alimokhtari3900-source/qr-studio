@@ -350,219 +350,386 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final search = TextEditingController();
+  late Future<List<Map<String, dynamic>>> productsFuture;
+  String filter = 'all';
+  String sort = 'newest';
+
+  @override
+  void initState() {
+    super.initState();
+    productsFuture = load();
+  }
 
   Future<List<Map<String, dynamic>>> load() async {
-    final query = Supabase.instance.client.from('products').select();
-    final text = search.text.trim();
-    final rows = text.isEmpty
-        ? await query.order('created_at', ascending: false)
-        : await query
-            .filter('name', 'ilike', '%$text%')
-            .order('created_at', ascending: false);
+    final rows = await Supabase.instance.client
+        .from('products').select().order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(rows);
   }
 
-  Future<void> editor([Map<String, dynamic>? product]) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => ProductEditor(product: product)),
-    );
-    if (mounted) setState(() {});
+  Future<void> refresh() async {
+    final next = load();
+    setState(() => productsFuture = next);
+    await next;
   }
+
+  Future<void> editor([Map<String, dynamic>? product]) async {
+    await Navigator.push(context,
+      MaterialPageRoute(builder: (_) => ProductEditor(product: product)));
+    if (mounted) await refresh();
+  }
+
+  String productUrl(Map<String, dynamic> product) {
+    final base = publicSiteUrl.trim().replaceFirst(RegExp(r'/+$'), '');
+    return base + '/product.html?id=' +
+        Uri.encodeQueryComponent(product['id'].toString());
+  }
+
+  Future<void> copyLink(Map<String, dynamic> product) async {
+    await Clipboard.setData(ClipboardData(text: productUrl(product)));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('لینک اختصاصی محصول کپی شد.')));
+  }
+
+  Future<void> changeActive(Map<String, dynamic> product) async {
+    final next = product['is_active'] != true;
+    try {
+      await Supabase.instance.client.from('products')
+          .update({'is_active': next}).eq('id', product['id']);
+      await refresh();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(next ? 'محصول دوباره فعال شد.' : 'محصول بایگانی شد.')));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تغییر وضعیت محصول انجام نشد.')));
+    }
+  }
+
+  Future<void> duplicate(Map<String, dynamic> product) async {
+    try {
+      final data = <String, dynamic>{
+        'name': (product['name']?.toString() ?? 'محصول') + ' - نسخه جدید',
+        'code': null,
+        'brand': product['brand'],
+        'category': product['category'],
+        'description': product['description'],
+        'images': product['images'] ?? [],
+        'attachments': product['attachments'] ?? [],
+        'specifications': product['specifications'] ?? {},
+        'custom_fields': product['custom_fields'] ?? {},
+        'translations': product['translations'] ?? {},
+        'contact': product['contact'] ?? {},
+        'is_published': false,
+        'is_active': true,
+      };
+      await Supabase.instance.client.from('products').insert(data);
+      await refresh();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('نسخهٔ پیش‌نویس محصول ساخته شد. کد آن را جداگانه ثبت کنید.')));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('کپی محصول انجام نشد.')));
+    }
+  }
+
+  Future<void> exportCsv(List<Map<String, dynamic>> rows) async {
+    String cell(dynamic value) =>
+        '"' + (value?.toString() ?? '').replaceAll('"', '""') + '"';
+    final lines = <String>[
+      ['نام محصول', 'کد', 'برند', 'دسته‌بندی', 'وضعیت', 'تعداد اسکن'].map(cell).join(','),
+      ...rows.map((p) => [
+        p['name'], p['code'], p['brand'], p['category'],
+        p['is_active'] != true ? 'بایگانی' : (p['is_published'] == true ? 'منتشرشده' : 'پیش‌نویس'),
+        p['scan_count'] ?? 0,
+      ].map(cell).join(',')),
+    ];
+    await Clipboard.setData(ClipboardData(text: '\uFEFF' + lines.join('\n')));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('گزارش CSV کپی شد؛ آن را در Excel جای‌گذاری کنید.')));
+  }
+
+  Widget statCard(String label, String value, IconData icon, Color tint) =>
+      Expanded(child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFECE7F0))),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(icon, color: tint, size: 20),
+          const SizedBox(height: 9),
+          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF251936))),
+          const SizedBox(height: 2),
+          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF82778F), fontWeight: FontWeight.w600)),
+        ]),
+      ));
 
   Widget productThumbnail(Map<String, dynamic> product) {
     final raw = product['images'];
-    final url = raw is List && raw.isNotEmpty && raw.first is String
-        ? raw.first as String
+    final url = raw is List && raw.isNotEmpty
+        ? (raw.first is String ? raw.first as String
+            : (raw.first is Map ? raw.first['url']?.toString() : null))
         : null;
     if (url == null || url.isEmpty) {
-      return const CircleAvatar(
-        backgroundColor: Color(0xFFEDE8F4),
-        child: Icon(Icons.inventory_2_outlined, color: Color(0xFF542A83)),
-      );
+      return Container(width: 88, height: 100,
+        decoration: BoxDecoration(color: const Color(0xFFF0EBF6), borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.inventory_2_outlined, size: 32, color: Color(0xFF7652A0)));
     }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Image.network(
-        url,
-        width: 52,
-        height: 52,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const CircleAvatar(
-          child: Icon(Icons.broken_image_outlined),
-        ),
-      ),
-    );
+    return ClipRRect(borderRadius: BorderRadius.circular(16),
+      child: Image.network(url, width: 88, height: 100, fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Container(width: 88, height: 100,
+          color: const Color(0xFFF0EBF6), child: const Icon(Icons.broken_image_outlined))));
   }
 
-  @override
-  void dispose() {
-    search.dispose();
-    super.dispose();
+  Widget statusPill(Map<String, dynamic> product) {
+    final archived = product['is_active'] != true;
+    final published = product['is_published'] == true;
+    final label = archived ? 'بایگانی' : (published ? 'منتشرشده' : 'پیش‌نویس');
+    final color = archived ? const Color(0xFF77717E)
+        : (published ? const Color(0xFF217A5B) : const Color(0xFF9A6B16));
+    final bg = archived ? const Color(0xFFF0EEF2)
+        : (published ? const Color(0xFFE7F5EE) : const Color(0xFFFFF4DE));
+    return Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+      child: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color)));
   }
+
+  Widget productCard(Map<String, dynamic> product) => Card(
+    margin: const EdgeInsets.only(bottom: 11), elevation: 0, color: Colors.white,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21),
+      side: const BorderSide(color: Color(0xFFECE7F0))),
+    child: InkWell(borderRadius: BorderRadius.circular(21),
+      onTap: () => Navigator.push(context,
+        MaterialPageRoute(builder: (_) => QRScreen(product: product))),
+      child: Padding(padding: const EdgeInsets.all(12),
+        child: Row(children: [
+          productThumbnail(product),
+          const SizedBox(width: 13),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Expanded(child: Text(product['name']?.toString() ?? 'بدون نام',
+                maxLines: 2, overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Color(0xFF251936)))),
+              const SizedBox(width: 4), statusPill(product),
+            ]),
+            const SizedBox(height: 7),
+            Text([product['brand'], product['category'],
+              if ((product['code'] ?? '').toString().isNotEmpty) 'کد ' + product['code'].toString()]
+              .where((v) => v != null && v.toString().trim().isNotEmpty).join('  •  '),
+              maxLines: 1, overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 11, color: Color(0xFF82778F))),
+            const SizedBox(height: 11),
+            Row(children: [
+              const Icon(Icons.qr_code_2_rounded, size: 16, color: Color(0xFF8B6AA8)),
+              const SizedBox(width: 4),
+              Text((product['scan_count'] ?? 0).toString() + ' اسکن',
+                style: const TextStyle(fontSize: 11, color: Color(0xFF665B72))),
+              const SizedBox(width: 12),
+              const Icon(Icons.photo_library_outlined, size: 15, color: Color(0xFF8B6AA8)),
+              const SizedBox(width: 4),
+              Text(((product['images'] is List ? (product['images'] as List).length : 0)).toString() + ' عکس',
+                style: const TextStyle(fontSize: 11, color: Color(0xFF665B72))),
+            ]),
+          ])),
+          PopupMenuButton<String>(tooltip: 'عملیات محصول',
+            onSelected: (value) {
+              if (value == 'edit') editor(product);
+              if (value == 'qr') Navigator.push(context, MaterialPageRoute(builder: (_) => QRScreen(product: product)));
+              if (value == 'copy') copyLink(product);
+              if (value == 'duplicate') duplicate(product);
+              if (value == 'archive') changeActive(product);
+            },
+            itemBuilder: (_) => [
+              const PopupMenuItem(value: 'edit', child: ListTile(leading: Icon(Icons.edit_outlined), title: Text('ویرایش'), dense: true)),
+              const PopupMenuItem(value: 'qr', child: ListTile(leading: Icon(Icons.qr_code_2), title: Text('نمایش QR'), dense: true)),
+              const PopupMenuItem(value: 'copy', child: ListTile(leading: Icon(Icons.link), title: Text('کپی لینک'), dense: true)),
+              const PopupMenuItem(value: 'duplicate', child: ListTile(leading: Icon(Icons.copy_all_outlined), title: Text('ساخت نسخهٔ کپی'), dense: true)),
+              PopupMenuItem(value: 'archive', child: ListTile(
+                leading: Icon(product['is_active'] == true ? Icons.archive_outlined : Icons.unarchive_outlined),
+                title: Text(product['is_active'] == true ? 'بایگانی محصول' : 'فعال‌سازی دوباره'), dense: true)),
+            ]),
+        ]),
+      ),
+    ),
+  );
+
+  @override
+  void dispose() { search.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'QR Studio',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          actions: [
-            IconButton(
-              tooltip: 'خروج از حساب',
-              onPressed: () async {
-                await Supabase.instance.client.auth.signOut();
-                if (!context.mounted) return;
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AuthGate()),
-                  (_) => false,
-                );
-              },
-              icon: const Icon(Icons.logout),
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => editor(),
-          icon: const Icon(Icons.add),
-          label: const Text('محصول جدید'),
-        ),
-        body: RefreshIndicator(
-          onRefresh: () async { if (mounted) setState(() {}); },
-          child: ListView(
-            padding: const EdgeInsets.all(16),
+    backgroundColor: const Color(0xFFF7F5F9),
+    appBar: AppBar(backgroundColor: const Color(0xFFF7F5F9),
+      title: const Row(children: [
+        Icon(Icons.auto_awesome, color: Color(0xFFC79B4A), size: 19),
+        SizedBox(width: 7),
+        Text('QR Studio Pro', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: -.3)),
+      ]),
+      actions: [
+        IconButton(tooltip: 'به‌روزرسانی فهرست', onPressed: refresh, icon: const Icon(Icons.refresh_rounded)),
+        IconButton(tooltip: 'خروج از حساب', onPressed: () async {
+          await Supabase.instance.client.auth.signOut();
+          if (!context.mounted) return;
+          Navigator.pushAndRemoveUntil(context,
+            MaterialPageRoute(builder: (_) => const AuthGate()), (_) => false);
+        }, icon: const Icon(Icons.logout_rounded)),
+      ]),
+    floatingActionButton: FloatingActionButton.extended(
+      backgroundColor: const Color(0xFF2A1B3D), foregroundColor: Colors.white,
+      onPressed: () => editor(), icon: const Icon(Icons.add_rounded),
+      label: const Text('محصول جدید', style: TextStyle(fontWeight: FontWeight.bold))),
+    body: RefreshIndicator(onRefresh: refresh,
+      child: FutureBuilder<List<Map<String, dynamic>>>(future: productsFuture,
+        builder: (context, snap) {
+          if (snap.connectionState == ConnectionState.waiting)
+            return const Center(child: CircularProgressIndicator());
+          if (snap.hasError) return ListView(children: const [
+            SizedBox(height: 140), Icon(Icons.cloud_off_outlined, size: 48, color: Color(0xFF8F829B)),
+            SizedBox(height: 12), Center(child: Text('دریافت اطلاعات انجام نشد. اتصال اینترنت را بررسی کنید.')),
+          ]);
+          final allRows = snap.data ?? [];
+          final published = allRows.where((p) => p['is_active'] == true && p['is_published'] == true).length;
+          final drafts = allRows.where((p) => p['is_active'] == true && p['is_published'] != true).length;
+          final archived = allRows.where((p) => p['is_active'] != true).length;
+          final query = search.text.trim().toLowerCase();
+          var visible = allRows.where((p) {
+            final haystack = [p['name'], p['code'], p['brand'], p['category']]
+                .where((v) => v != null).join(' ').toLowerCase();
+            final matchesText = query.isEmpty || haystack.contains(query);
+            final active = p['is_active'] == true;
+            final matchesFilter = filter == 'all' ||
+                (filter == 'published' && active && p['is_published'] == true) ||
+                (filter == 'draft' && active && p['is_published'] != true) ||
+                (filter == 'archived' && !active);
+            return matchesText && matchesFilter;
+          }).toList();
+          if (sort == 'name') {
+            visible.sort((a, b) => (a['name'] ?? '').toString().compareTo((b['name'] ?? '').toString()));
+          } else if (sort == 'scans') {
+            visible.sort((a, b) => ((b['scan_count'] ?? 0) as num).compareTo((a['scan_count'] ?? 0) as num));
+          } else {
+            visible.sort((a, b) => (b['created_at'] ?? '').toString().compareTo((a['created_at'] ?? '').toString()));
+          }
+          return ListView(physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 6, 16, 100),
             children: [
-              Container(
-                padding: const EdgeInsets.all(22),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF17152D), Color(0xFF54268A)],
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                  ),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'پنل مدیریت محصولات',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'محصولاتت را حرفه‌ای معرفی کن',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 21,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      'عکس، مشخصات و توضیحات را ثبت کن و QR اختصاصی بساز.',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: search,
-                onChanged: (_) => setState(() {}),
-                decoration: const InputDecoration(
-                  hintText: 'جست‌وجوی نام محصول',
-                  prefixIcon: Icon(Icons.search),
-                ),
-              ),
+              Container(padding: const EdgeInsets.all(21),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),
+                  gradient: const LinearGradient(colors: [Color(0xFF171222), Color(0xFF39234E), Color(0xFF64417A)],
+                    begin: Alignment.topRight, end: Alignment.bottomLeft),
+                  boxShadow: const [BoxShadow(color: Color(0x22301A48), blurRadius: 22, offset: Offset(0, 10))]),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(children: [
+                    Container(padding: const EdgeInsets.all(11),
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(.10), borderRadius: BorderRadius.circular(16)),
+                      child: const Icon(Icons.qr_code_2_rounded, color: Color(0xFFE8C37C), size: 30)),
+                    const Spacer(),
+                    Container(padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                      decoration: BoxDecoration(color: const Color(0x33D9B56B), borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: const Color(0x66D9B56B))),
+                      child: const Text('PRO  •  نسخه ۲', style: TextStyle(color: Color(0xFFF2D8A2), fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: .5))),
+                  ]),
+                  const SizedBox(height: 18),
+                  const Text('مدیریت هوشمند کاتالوگ محصولات', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20)),
+                  const SizedBox(height: 6),
+                  const Text('از ثبت مشخصات تا معرفی دیجیتال و QR اختصاصی؛ همه‌چیز یک‌جا و مرتب.',
+                    style: TextStyle(color: Color(0xFFD7CEDF), height: 1.7, fontSize: 12)),
+                  const SizedBox(height: 15),
+                  Row(children: [
+                    const Icon(Icons.verified_user_outlined, color: Color(0xFFE8C37C), size: 16),
+                    const SizedBox(width: 6),
+                    Text(allRows.length.toString() + ' محصول در فضای کاری شما',
+                      style: const TextStyle(color: Color(0xFFE7DDEC), fontSize: 11)),
+                  ]),
+                ])),
+              const SizedBox(height: 14),
+              Row(children: [
+                statCard('کل محصولات', allRows.length.toString(), Icons.inventory_2_outlined, const Color(0xFF7652A0)),
+                const SizedBox(width: 8),
+                statCard('منتشرشده', published.toString(), Icons.public_rounded, const Color(0xFF21845E)),
+                const SizedBox(width: 8),
+                statCard('پیش‌نویس', drafts.toString(), Icons.edit_note_rounded, const Color(0xFFB17B22)),
+              ]),
+              const SizedBox(height: 8),
+              Row(children: [
+                const Icon(Icons.archive_outlined, size: 15, color: Color(0xFF82778F)),
+                const SizedBox(width: 5),
+                Text(archived.toString() + ' محصول بایگانی‌شده', style: const TextStyle(fontSize: 11, color: Color(0xFF82778F))),
+                const Spacer(),
+                TextButton.icon(onPressed: allRows.isEmpty ? null : () => exportCsv(allRows),
+                  icon: const Icon(Icons.file_download_outlined, size: 17), label: const Text('گزارش CSV')),
+              ]),
+              const SizedBox(height: 8),
+              TextField(controller: search, onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  hintText: 'جست‌وجوی نام، کد، برند یا دسته‌بندی',
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: query.isEmpty ? null : IconButton(tooltip: 'پاک کردن جست‌وجو',
+                    onPressed: () { search.clear(); setState(() {}); }, icon: const Icon(Icons.close_rounded)),
+                  filled: true, fillColor: Colors.white,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(17),
+                    borderSide: const BorderSide(color: Color(0xFFECE7F0))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(17),
+                    borderSide: const BorderSide(color: Color(0xFFECE7F0))),
+                )),
+              const SizedBox(height: 13),
+              SingleChildScrollView(scrollDirection: Axis.horizontal,
+                child: Row(children: [
+                  _filterChip('همه', 'all'), _filterChip('منتشرشده', 'published'),
+                  _filterChip('پیش‌نویس', 'draft'), _filterChip('بایگانی', 'archived'),
+                ])),
               const SizedBox(height: 12),
-              FutureBuilder<List<Map<String, dynamic>>>(
-                future: load(),
-                builder: (context, snap) {
-                  if (snap.connectionState == ConnectionState.waiting) {
-                    return const Padding(
-                      padding: EdgeInsets.all(30),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  if (snap.hasError) {
-                    return const Text(
-                      'دریافت محصولات انجام نشد. اتصال اینترنت را بررسی کنید.',
-                    );
-                  }
-                  final rows = snap.data ?? [];
-                  if (rows.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(30),
-                      child: Center(child: Text('هنوز محصولی ثبت نشده است.')),
-                    );
-                  }
-                  return Column(
-                    children: rows
-                        .map(
-                          (product) => Card(
-                            elevation: 0,
-                            color: Colors.white,
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 5,
-                              ),
-                              title: Text(
-                                product['name']?.toString() ?? 'بدون نام',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                'کد: ${product['code'] ?? '-'}  •  اسکن: ${product['scan_count'] ?? 0}',
-                              ),
-                              leading: productThumbnail(product),
-                              trailing: PopupMenuButton<String>(
-                                tooltip: 'گزینه‌های محصول',
-                                onSelected: (value) {
-                                  if (value == 'edit') editor(product);
-                                },
-                                itemBuilder: (_) => const [
-                                  PopupMenuItem(
-                                    value: 'edit',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.edit_outlined, size: 19),
-                                        SizedBox(width: 8),
-                                        Text('ویرایش محصول'),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => QRScreen(product: product),
-                                ),
-                              ),
-                              onLongPress: () => editor(product),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  );
-                },
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 12),
-                child: Text(
-                  'برای نمایش QR روی محصول بزنید؛ برای ویرایش، لمس طولانی کنید.',
-                  style: TextStyle(color: Colors.black54, fontSize: 12),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+              Row(children: [
+                const Text('فهرست محصولات', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF2B2038))),
+                const Spacer(),
+                Text(visible.length.toString() + ' مورد', style: const TextStyle(color: Color(0xFF8A8093), fontSize: 11)),
+                const SizedBox(width: 8),
+                DropdownButton<String>(value: sort, underline: const SizedBox.shrink(),
+                  borderRadius: BorderRadius.circular(14),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF51445F)),
+                  items: const [
+                    DropdownMenuItem(value: 'newest', child: Text('جدیدترین')),
+                    DropdownMenuItem(value: 'name', child: Text('نام محصول')),
+                    DropdownMenuItem(value: 'scans', child: Text('بیشترین اسکن')),
+                  ],
+                  onChanged: (value) { if (value != null) setState(() => sort = value); }),
+              ]),
+              const SizedBox(height: 8),
+              if (visible.isEmpty)
+                Container(padding: const EdgeInsets.all(30),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFECE7F0))),
+                  child: Column(children: [
+                    const Icon(Icons.search_off_rounded, size: 42, color: Color(0xFF9B8DA8)),
+                    const SizedBox(height: 10),
+                    Text(allRows.isEmpty ? 'هنوز محصولی ثبت نشده است.' : 'محصولی با این فیلتر پیدا نشد.',
+                      style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF5E526A))),
+                    const SizedBox(height: 6),
+                    const Text('با افزودن محصول یا تغییر جست‌وجو شروع کنید.',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF93899B))),
+                  ]))
+              else
+                ...visible.map(productCard),
+              const SizedBox(height: 12),
+              const Center(child: Text('QR Studio Pro  •  معرفی هوشمند محصولات',
+                style: TextStyle(color: Color(0xFF9A91A2), fontSize: 10))),
+            ]);
+        })),
+  );
+
+  Widget _filterChip(String label, String value) => Padding(
+    padding: const EdgeInsetsDirectional.only(end: 7),
+    child: ChoiceChip(label: Text(label), selected: filter == value,
+      onSelected: (_) => setState(() => filter = value),
+      selectedColor: const Color(0xFFE9DDF2), backgroundColor: Colors.white,
+      side: BorderSide(color: filter == value ? const Color(0xFFB79ACB) : const Color(0xFFECE7F0)),
+      labelStyle: TextStyle(color: filter == value ? const Color(0xFF4C2F66) : const Color(0xFF786D83),
+        fontWeight: FontWeight.bold, fontSize: 11)),
+  );
 }
 
 class ProductEditor extends StatefulWidget {
