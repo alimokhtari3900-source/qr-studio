@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<defs>
+ <linearGradient id="bg" x1="120" y1="90" x2="910" y2="940" gradientUnits="userSpaceOnUse"><stop stop-color="#171221"/><stop offset=".52" stop-color="#392448"/><stop offset="1" stop-color="#121C37"/></linearGradient>
+ <linearGradient id="gold" x1="230" y1="230" x2="800" y2="830" gradientUnits="userSpaceOnUse"><stop stop-color="#F5DCA8"/><stop offset=".55" stop-color="#C99C55"/><stop offset="1" stop-color="#9E7138"/></linearGradient>
+ <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(550 590 -590 550 510 490)" gradientUnits="userSpaceOnUse"><stop stop-color="#8D62A5" stop-opacity=".27"/><stop offset="1" stop-color="#8D62A5" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1024" height="1024" rx="230" fill="url(#bg)"/>
+<rect width="1024" height="1024" rx="230" fill="url(#glow)"/>
+<g fill="none" stroke="#E4C78F" stroke-opacity=".12" stroke-width="3"><circle cx="512" cy="512" r="392"/><circle cx="512" cy="512" r="330"/></g>
+<g fill="#fff">
+ <rect x="190" y="190" width="255" height="255" rx="48"/>
+ <rect x="245" y="245" width="145" height="145" rx="26" fill="#241A31"/>
+ <rect x="281" y="281" width="73" height="73" rx="14" fill="#fff"/>
+ <rect x="579" y="190" width="255" height="255" rx="48"/>
+ <rect x="634" y="245" width="145" height="145" rx="26" fill="#241A31"/>
+ <rect x="670" y="281" width="73" height="73" rx="14" fill="#fff"/>
+ <rect x="190" y="579" width="255" height="255" rx="48"/>
+ <rect x="245" y="634" width="145" height="145" rx="26" fill="#241A31"/>
+ <rect x="281" y="670" width="73" height="73" rx="14" fill="#fff"/>
+</g>
+<g fill="url(#gold)">
+ <rect x="579" y="579" width="110" height="110" rx="28"/>
+ <rect x="720" y="579" width="114" height="114" rx="28"/>
+ <rect x="579" y="720" width="110" height="114" rx="28"/>
+ <rect x="720" y="720" width="114" height="114" rx="28"/>
+ <path d="M510 485l31 79 79 31-79 31-31 79-31-79-79-31 79-31 31-79Z"/>
+</g>
+<path d="M512 450l24 62 62 24-62 24-24 62-24-62-62-24 62-24 24-62Z" fill="#FFF1D4"/>
+<circle cx="512" cy="512" r="9" fill="#4A3157"/>
+</svg>
