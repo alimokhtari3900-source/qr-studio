@@ -1,7 +1,7 @@
-name: qr_studio_pro
-description: QR Studio Pro premium product management app
+name: qr_studio_pro_luxe
+description: QR Studio Pro Luxe premium product management app
 publish_to: none
-version: 2.1.0+2
+version: 3.0.0+1
 
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -24,13 +24,13 @@ dev_dependencies:
 
 flutter_launcher_icons:
   android: true
-  image_path: assets/branding/qr-studio-pro-icon.png
+  image_path: assets/branding/qr-studio-luxe-icon.png
   adaptive_icon_background: "#17102B"
-  adaptive_icon_foreground: assets/branding/qr-studio-pro-foreground.png
+  adaptive_icon_foreground: assets/branding/qr-studio-luxe-foreground.png
   adaptive_icon_foreground_inset: 12
   min_sdk_android: 21
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/branding/qr-studio-pro-icon.png
+    - assets/branding/qr-studio-luxe-icon.png
