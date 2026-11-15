@@ -590,6 +590,18 @@ class _ProductEditorState extends State<ProductEditor> {
   late final description = TextEditingController(
     text: widget.product?['description']?.toString() ?? '',
   );
+  late final specifications = TextEditingController(
+    text: _formatMap(widget.product?['specifications']),
+  );
+  late final contactPhone = TextEditingController(
+    text: _contactValue('phone'),
+  );
+  late final contactWhatsapp = TextEditingController(
+    text: _contactValue('whatsapp'),
+  );
+  late final contactWebsite = TextEditingController(
+    text: _contactValue('website'),
+  );
   final List<XFile> selectedImages = [];
   List<String> existingImages = [];
   bool published = false;
@@ -611,6 +623,33 @@ class _ProductEditorState extends State<ProductEditor> {
           .where((url) => url.startsWith('https://'))
           .toList();
     }
+  }
+
+
+  String _contactValue(String key) {
+    final raw = widget.product?['contact'];
+    if (raw is Map) return raw[key]?.toString() ?? '';
+    return '';
+  }
+
+  String _formatMap(dynamic value) {
+    if (value is! Map) return '';
+    return value.entries
+        .where((entry) => entry.value != null && entry.value.toString().trim().isNotEmpty)
+        .map((entry) => '${entry.key}: ${entry.value}')
+        .join('\\n');
+  }
+
+  Map<String, String> _parseLines(String text) {
+    final result = <String, String>{};
+    for (final line in text.split('\\n')) {
+      final separator = line.indexOf(':');
+      if (separator <= 0) continue;
+      final key = line.substring(0, separator).trim();
+      final value = line.substring(separator + 1).trim();
+      if (key.isNotEmpty && value.isNotEmpty) result[key] = value;
+    }
+    return result;
   }
 
   Future<void> pickImages() async {
@@ -702,6 +741,12 @@ class _ProductEditorState extends State<ProductEditor> {
         'category': category.text.trim(),
         'description': description.text.trim(),
         'images': imageUrls,
+        'specifications': _parseLines(specifications.text),
+        'contact': {
+          if (contactPhone.text.trim().isNotEmpty) 'phone': contactPhone.text.trim(),
+          if (contactWhatsapp.text.trim().isNotEmpty) 'whatsapp': contactWhatsapp.text.trim(),
+          if (contactWebsite.text.trim().isNotEmpty) 'website': contactWebsite.text.trim(),
+        },
         'is_published': published,
         'is_active': true,
       };
@@ -772,6 +817,10 @@ class _ProductEditorState extends State<ProductEditor> {
     brand.dispose();
     category.dispose();
     description.dispose();
+    specifications.dispose();
+    contactPhone.dispose();
+    contactWhatsapp.dispose();
+    contactWebsite.dispose();
     super.dispose();
   }
 
@@ -916,6 +965,40 @@ class _ProductEditorState extends State<ProductEditor> {
                   alignLabelWithHint: true,
                 ),
               ),
+              const SizedBox(height: 18),
+              const Text('مشخصات فنی و ویژگی‌ها', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 5),
+              const Text('هر ویژگی را در یک خط بنویسید؛ قالب هر خط: عنوان: مقدار', style: TextStyle(color: Colors.black54, fontSize: 12)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: specifications,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  hintText: 'جنس: سنگ طبیعی\\nابعاد: ۴۰ × ۴۰\\nرنگ: کرم',
+                  alignLabelWithHint: true,
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text('راه‌های ارتباط با مجموعه (اختیاری)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: contactPhone,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(labelText: 'شماره تماس', prefixIcon: Icon(Icons.phone_outlined)),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: contactWhatsapp,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(labelText: 'شماره واتساپ با کد کشور', prefixIcon: Icon(Icons.chat_outlined)),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: contactWebsite,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(labelText: 'وب‌سایت مجموعه', hintText: 'https://example.com', prefixIcon: Icon(Icons.language_outlined)),
+              ),
+              const SizedBox(height: 12),
               Card(
                 elevation: 0,
                 child: SwitchListTile(
