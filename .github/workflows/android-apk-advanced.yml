@@ -6,6 +6,9 @@ name: Build QR Studio Pro Advanced Android APK
 permissions:
   contents: read
   actions: read
+concurrency:
+  group: qr-studio-pro-advanced-android
+  cancel-in-progress: true
 jobs:
   build-advanced-apk:
     runs-on: ubuntu-latest
