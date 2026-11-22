@@ -1,0 +1,68 @@
+name: Build QR Studio Pro Advanced Android APK
+'on':
+  workflow_dispatch:
+  push:
+    branches: [version-4-advanced]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  build-advanced-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Advanced brand icon assets
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin
+          mkdir -p assets/branding
+          rsvg-convert -w 1024 -h 1024 -o assets/branding/qr-studio-advanced-icon.png assets/branding/qr-studio-advanced-icon.svg
+          rsvg-convert -w 1024 -h 1024 -o assets/branding/qr-studio-advanced-foreground.png assets/branding/qr-studio-advanced-foreground.svg
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate independent Android project
+        run: flutter create --project-name qr_studio_pro_advanced --org com.qrstudio.pro.advanced --platforms=android .
+      - name: Enable internet access and set Advanced app name
+        run: |
+          sed -i '/<application/i\    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:label="qr_studio_pro_advanced"/android:label="QR Studio Pro Advanced"/' android/app/src/main/AndroidManifest.xml
+      - name: Install packages
+        run: flutter pub get
+      - name: Generate Advanced launcher icons
+        run: dart run flutter_launcher_icons
+      - name: Static analysis
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Run widget tests
+        run: flutter test
+      - name: Build installable Advanced APK
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+        run: |
+          SITE_URL="$PUBLIC_SITE_URL"
+          if [ -z "$SITE_URL" ]; then SITE_URL="https://alimokhtari3900-source.github.io/qr-studio/advanced"; fi
+          case "$SITE_URL" in
+            */advanced) ;;
+            */luxe) SITE_URL="${SITE_URL%/luxe}/advanced" ;;
+            */pro) SITE_URL="${SITE_URL%/pro}/advanced" ;;
+            */qr-studio) SITE_URL="$SITE_URL/advanced" ;;
+            *) SITE_URL="$SITE_URL/advanced" ;;
+          esac
+          flutter build apk --release \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_PUBLISHABLE_KEY="$SUPABASE_PUBLISHABLE_KEY" \
+            --dart-define=PUBLIC_SITE_URL="$SITE_URL"
+          mkdir -p output
+          cp build/app/outputs/flutter-apk/app-release.apk output/QR-Studio-Pro-Advanced.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QR-Studio-Pro-Advanced-APK
+          path: output/QR-Studio-Pro-Advanced.apk
+          retention-days: 30
