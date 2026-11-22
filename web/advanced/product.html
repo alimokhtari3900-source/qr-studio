@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17101b">
+<meta name="description" content="شناسنامه دیجیتال پیشرفته محصول در QR Studio Pro Advanced">
+<meta property="og:type" content="product">
+<meta property="og:title" content="QR Studio Pro Advanced | شناسنامه محصول">
+<meta property="og:description" content="تصاویر، ویژگی‌ها و اطلاعات محصول را مشاهده کنید.">
+<meta property="og:image" content="">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>QR Studio Pro Advanced | شناسنامه هوشمند محصول</title>
+<style>
+:root{color-scheme:light;--ink:#251b30;--muted:#887d91;--plum:#24182f;--plum2:#4d345f;--gold:#c79d57;--gold2:#eed8ab;--paper:#f6f3f7;--line:#ece5ef;--green:#287b5c}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 80% 0%,#eee5f1 0,transparent 36%),var(--paper);color:var(--ink);font-family:Vazirmatn, sans-serif;min-height:100vh}
+button,a{font:inherit}
+button{cursor:pointer}
+.site-header{position:relative;overflow:hidden;background:linear-gradient(118deg,#15101d 0%,#2b1d39 58%,#4a3158 100%);color:#fff;padding:24px 22px 74px}
+.site-header:before,.site-header:after{content:"";position:absolute;border:1px solid rgba(226,193,132,.16);border-radius:50%;pointer-events:none}
+.site-header:before{width:410px;height:410px;right:-100px;top:-275px}
+.site-header:after{width:280px;height:280px;left:-100px;bottom:-220px}
+.header-inner{max-width:1180px;margin:auto;position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none}
+.brand-symbol{width:48px;height:48px;border-radius:15px;overflow:hidden;border:1px solid rgba(236,211,164,.48);box-shadow:0 8px 22px #0c081455}
+.brand-symbol img{width:100%;height:100%;display:block}
+.brand-name{display:block;font:900 13px "DM Sans",sans-serif;letter-spacing:1.6px}
+.brand-caption{display:block;margin-top:4px;color:#cfc1d9;font:500 9px "DM Sans",sans-serif;letter-spacing:1.7px}
+.header-right{display:flex;gap:9px;align-items:center}
+.security-label{display:flex;align-items:center;gap:7px;color:#e8d8b9;background:#ffffff0b;border:1px solid #e4c78b33;border-radius:30px;padding:9px 13px;font-size:10px}
+.security-label svg{width:15px;height:15px}
+.lang-toggle{border:1px solid #ffffff36;background:#ffffff0d;color:#fff;padding:8px 12px;border-radius:30px;font-size:10px;font-weight:800}
+.page-shell{max-width:1180px;margin:-48px auto 0;padding:0 22px 48px;position:relative;z-index:2}
+.page-card{background:#fff;border:1px solid #e9e2ec;border-radius:29px;overflow:hidden;box-shadow:0 25px 85px #2b1b3c12}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);min-height:540px}
+.gallery-panel{padding:27px 27px 22px;border-left:1px solid var(--line);background:linear-gradient(155deg,#fff,#fbf9fc)}
+.gallery-stage{height:430px;border-radius:22px;background:linear-gradient(145deg,#f1edf4,#e8e1ec);display:grid;place-items:center;position:relative;overflow:hidden}
+.hero-image{width:100%;height:100%;object-fit:contain;padding:24px;cursor:zoom-in;animation:fade .35s ease}
+.no-image{padding:30px;text-align:center;color:#9a8da4;font-size:12px}
+.no-image-icon{width:76px;height:76px;border-radius:23px;margin:0 auto 14px;background:#fff;display:grid;place-items:center;color:#9077a2;box-shadow:0 9px 28px #28183712}
+.no-image-icon svg{width:35px;height:35px}
+.gallery-counter{position:absolute;top:15px;right:15px;background:#21172bbd;color:#fff;padding:7px 10px;border-radius:30px;font:700 10px "DM Sans",sans-serif;direction:ltr;backdrop-filter:blur(8px)}
+.zoom-hint{position:absolute;bottom:14px;left:14px;display:flex;align-items:center;gap:6px;background:#fffdf2e8;color:#655044;border:1px solid #d9c69f90;border-radius:30px;padding:7px 10px;font-size:10px}
+.zoom-hint svg{width:14px;height:14px}
+.thumb-row{display:flex;gap:9px;overflow-x:auto;padding:14px 2px 2px;scrollbar-width:thin}
+.thumb{width:72px;height:72px;flex:0 0 72px;border:2px solid transparent;border-radius:15px;overflow:hidden;padding:0;background:#f2edf5;cursor:pointer}
+.thumb.active{border-color:var(--gold);box-shadow:0 0 0 3px #c79d5722}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.details-panel{padding:42px 43px 34px;display:flex;flex-direction:column;justify-content:center}
+.eyebrow{display:flex;align-items:center;gap:9px;color:#9c7a45;font-size:10px;font-weight:800;letter-spacing:.2px}
+.eyebrow-line{height:1px;width:27px;background:var(--gold)}
+.product-meta{display:flex;gap:7px;flex-wrap:wrap;margin:20px 0 14px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:30px;background:#f6f1f8;color:#6f547f;font-size:10px;font-weight:700}
+.pill svg{width:13px;height:13px}
+h1{font-size:clamp(27px,4vw,39px);line-height:1.48;margin:0;color:#2b2035;font-weight:900}
+.brand-subtitle{margin:5px 0 0;color:#8e8198;font-size:13px}
+.gold-rule{display:flex;align-items:center;gap:9px;margin:24px 0 20px}
+.gold-rule:before{content:"";width:42px;height:2px;background:var(--gold)}
+.gold-rule:after{content:"";height:1px;background:var(--line);flex:1}
+.section-heading{font-size:14px;font-weight:900;margin:0 0 11px;color:#352641}
+.description{font-size:13px;line-height:2.15;color:#746a7c;white-space:pre-wrap;overflow-wrap:anywhere}
+.identity-card{margin-top:24px;border:1px solid #ece5ef;border-radius:17px;padding:14px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(115deg,#fcfafc,#f8f4f9)}
+.identity-copy{display:flex;align-items:center;gap:10px}
+.identity-icon{width:38px;height:38px;border-radius:12px;background:#efe7f2;color:#75568b;display:grid;place-items:center}
+.identity-icon svg{width:19px;height:19px}
+.identity-title{font-size:10px;color:#92879a}
+.identity-value{font:800 13px "DM Sans",sans-serif;color:#382b45;letter-spacing:1px}
+.identity-mark{font:800 9px "DM Sans",sans-serif;letter-spacing:1.2px;color:#b59b71}
+.content-section{padding:29px 40px;border-top:1px solid var(--line)}
+.section-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.section-kicker{font:800 9px "DM Sans",sans-serif;color:#b39a74;letter-spacing:1.3px}
+.spec-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.spec-item{display:flex;gap:12px;align-items:center;padding:13px 14px;background:#fbf9fc;border:1px solid #f0eaf2;border-radius:15px;min-width:0}
+.spec-bullet{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border-radius:10px;background:#eee7f2;color:#795b8c;font:800 9px "DM Sans",sans-serif}
+.spec-key{display:block;color:#9a8ea3;font-size:10px;margin-bottom:3px}
+.spec-value{display:block;color:#41334d;font-size:12px;font-weight:800;overflow-wrap:anywhere}
+.custom-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.custom-card{border-radius:15px;padding:15px;background:linear-gradient(140deg,#2b2036,#4d365c);color:#fff;min-width:0}
+.custom-label{font-size:10px;color:#d5c3df;display:block;margin-bottom:5px}
+.custom-value{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.link-grid,.contact-grid{display:flex;flex-wrap:wrap;gap:10px}
+.action-link{display:inline-flex;align-items:center;gap:9px;text-decoration:none;border-radius:14px;padding:12px 15px;border:1px solid #e9e0ed;background:#faf8fb;color:#584269;font-size:11px;font-weight:800;transition:transform .2s,box-shadow .2s}
+.action-link:hover{transform:translateY(-2px);box-shadow:0 10px 22px #27163814}
+.action-link svg{width:17px;height:17px}
+.contact-link{display:inline-flex;align-items:center;gap:9px;text-decoration:none;border-radius:14px;padding:12px 15px;background:#f3edf6;color:#624779;font-size:11px;font-weight:800}
+.contact-link.primary{background:#2c2039;color:#fff}
+.contact-link svg{width:17px;height:17px}
+.trust-strip{padding:19px 40px;display:flex;justify-content:space-between;gap:14px;background:#fbf9fc;border-top:1px solid var(--line)}
+.trust-item{display:flex;align-items:center;gap:8px;color:#82758d;font-size:10px}
+.trust-item svg{width:16px;height:16px;color:#b18d54}
+.share-section{padding:20px 40px;display:flex;justify-content:space-between;align-items:center;gap:17px;border-top:1px solid var(--line)}
+.share-title{font-size:12px;font-weight:900;color:#3c2b49}
+.share-subtitle{font-size:10px;color:#9b91a1;margin-top:4px}
+.share-button{border:0;border-radius:13px;background:linear-gradient(105deg,#3b294c,#71517f);color:#fff;padding:12px 17px;font-size:11px;font-weight:800;display:flex;align-items:center;gap:8px;box-shadow:0 8px 17px #47305222}
+.share-button svg{width:16px;height:16px}
+.footer{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:16px 38px;color:#a29aaa;font-size:10px;background:#fff}
+.footer-brand{font:800 10px "DM Sans",sans-serif;letter-spacing:1.2px;color:#9c8eaa;direction:ltr}
+.loading-state,.state{min-height:390px;padding:55px 24px;display:grid;place-items:center;text-align:center;color:var(--muted)}
+.loader-ring{width:42px;height:42px;border:3px solid #eee7f3;border-top-color:var(--plum2);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+.state-icon{width:70px;height:70px;display:grid;place-items:center;border-radius:23px;background:#f3eef7;color:#795897;margin:0 auto 14px}
+.state-icon svg{width:30px;height:30px}
+.state h2{color:#332541;font-size:20px;margin:0 0 7px}
+.state p{font-size:13px;max-width:440px;margin:0 auto 18px;line-height:1.9}
+.retry-button{border:0;border-radius:12px;background:var(--plum2);color:#fff;padding:10px 20px;font-size:12px;font-weight:700;cursor:pointer}
+[hidden]{display:none!important}
+dialog{border:0;padding:0;border-radius:21px;max-width:min(94vw,1100px);max-height:92vh;background:#100d17;box-shadow:0 25px 90px #0009}
+dialog::backdrop{background:#0c0816de;backdrop-filter:blur(5px)}
+dialog img{display:block;max-width:92vw;max-height:88vh;object-fit:contain}
+@media(max-width:820px){
+ .page-shell{padding:0 14px 35px}.hero-grid{grid-template-columns:1fr}
+ .gallery-panel{border-left:0;border-bottom:1px solid var(--line);padding:17px}
+ .gallery-stage{height:clamp(300px,76vw,450px)}
+ .details-panel{padding:28px 25px 27px}.content-section{padding:28px 25px}
+ .trust-strip{padding:18px 25px}.share-section{padding:20px 25px}.footer{padding:15px 25px}
+}
+@media(max-width:520px){
+ .site-header{padding:17px 15px 73px}.security-label{font-size:9px;padding:6px 9px}
+ .brand-symbol{width:39px;height:39px}.page-shell{padding:0 9px 28px;margin-top:-42px}
+ .page-card{border-radius:23px}.gallery-panel{padding:11px}.gallery-stage{height:320px;border-radius:17px}
+ .hero-image{padding:15px}.thumb{width:65px;height:65px;flex-basis:65px;border-radius:13px}
+ .details-panel{padding:23px 20px 22px}h1{font-size:27px}.gold-rule{margin:18px 0}
+ .content-section{padding:23px 20px}.spec-grid,.custom-grid{grid-template-columns:1fr}
+ .trust-strip{padding:16px 20px;gap:13px;flex-direction:column}
+ .share-section{padding:18px 20px;align-items:flex-start;flex-direction:column}
+ .share-button{width:100%;justify-content:center}.footer{padding:14px 20px}
+ .identity-mark{display:none}.security-label{display:none}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+<style>
+:root{
+  color-scheme:light;
+  --ink:#211729;--muted:#897c8d;--plum:#17101c;--plum2:#3b2948;
+  --gold:#cda65e;--gold2:#f0dfb9;--paper:#f5f0e8;--line:#e8decd;--green:#287b5c
+}
+body{
+  background:
+    radial-gradient(ellipse at 80% 0%,#e9dfcf 0,transparent 38%),
+    radial-gradient(ellipse at 8% 16%,#eee8f1 0,transparent 32%),
+    var(--paper);
+}
+.site-header{
+  background:linear-gradient(118deg,#100d17 0%,#24192f 54%,#4a3628 100%);
+  padding-bottom:78px;
+}
+.site-header:before,.site-header:after{border-color:rgba(220,183,111,.24)}
+.brand-symbol{border-color:rgba(235,205,145,.72);box-shadow:0 9px 28px #09060d88}
+.security-label{color:#f1dfbc;border-color:#d9b66b55;background:#fff1}
+.lang-toggle{border-color:#d9c59b88;background:#fff1}
+.page-card{border-color:#e4d8c5;box-shadow:0 28px 100px #25192d1b}
+.gallery-panel{background:linear-gradient(155deg,#fffefa,#f8f3ea)}
+.gallery-stage{background:linear-gradient(145deg,#f4efe5,#e9e0d1)}
+.thumb.active{border-color:#cda65e;box-shadow:0 0 0 3px #cda65e33}
+.eyebrow{color:#997039}
+.eyebrow-line,.gold-rule:before{background:#cda65e}
+.pill{background:#f4ecdf;color:#72552e}
+.identity-card{border-color:#e9ddc9;background:linear-gradient(115deg,#fffdf7,#f7f1e6)}
+.identity-icon{background:#f0e4cd;color:#80602d}
+.content-section{border-color:#eee5d8}
+.section-kicker{color:#a27d43}
+.spec-item{background:#fcfaf6;border-color:#eee6da}
+.spec-bullet{background:#f0e6d6;color:#80602d}
+.custom-card{background:linear-gradient(140deg,#211729,#4b3529)}
+.custom-label{color:#e2cfa8}
+.action-link{border-color:#e8ddcb;background:#fcfaf6;color:#5b4930}
+.contact-link{background:#f2e9da;color:#634b2d}
+.contact-link.primary{background:linear-gradient(105deg,#30223a,#4a3529);color:#fff}
+.trust-strip{background:#fbf8f1;border-color:#eee5d8}
+.trust-item svg{color:#b18a4e}
+.share-section{border-color:#eee5d8}
+.share-button{background:linear-gradient(105deg,#d7b36f,#a77b3b);color:#241a27;box-shadow:0 9px 21px #8f6a342b}
+.footer{background:#fffdf8}
+.footer-brand{color:#9f804d}
+.loader-ring{border-color:#eee4d2;border-top-color:#997039}
+.state-icon{background:#f2eadc;color:#8b6936}
+.retry-button{background:linear-gradient(105deg,#34233f,#6a4e36)}
+@media(max-width:820px){
+  .site-header{padding-bottom:70px}
+  .page-card{border-radius:23px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+
+<style>
+:root{
+  --ink:#1d2430;--muted:#7f8995;--plum:#151b27;--plum2:#254c50;
+  --gold:#d4b36e;--gold2:#f2e4c2;--paper:#f2f5f3;--line:#e0e8e4;--green:#23806e
+}
+body{
+  background:
+    radial-gradient(ellipse at 84% 0%,#dcece6 0,transparent 38%),
+    radial-gradient(ellipse at 7% 18%,#ebe6f1 0,transparent 34%),
+    var(--paper);
+}
+.site-header{background:linear-gradient(118deg,#101722 0%,#202f42 53%,#20504d 100%)}
+.site-header:before,.site-header:after{border-color:rgba(208,183,115,.27)}
+.security-label{color:#e6e6cb;border-color:#d4b36e55}
+.page-card{border-color:#dce7e1;box-shadow:0 28px 100px #152d2b18}
+.gallery-panel{background:linear-gradient(155deg,#fff,#f4f8f5)}
+.gallery-stage{background:linear-gradient(145deg,#edf3ef,#dfe9e3)}
+.thumb.active{border-color:#47a38c;box-shadow:0 0 0 3px #47a38c25}
+.eyebrow{color:#277f72}.eyebrow-line,.gold-rule:before{background:#c6a45c}
+.pill{background:#eaf2ef;color:#3e746d}
+.identity-card{border-color:#dfebe4;background:linear-gradient(115deg,#fcfefa,#edf4f0)}
+.identity-icon{background:#e5f0eb;color:#317c70}
+.content-section{border-color:#e4ece7}
+.section-kicker{color:#3d8b7b}
+.spec-item{background:#f8fbf9;border-color:#e4eee8}
+.spec-bullet{background:#e5f0eb;color:#397e70}
+.custom-card{background:linear-gradient(140deg,#1e2938,#20504d)}
+.custom-label{color:#bddbd0}
+.action-link{border-color:#deebe4;background:#f9fcfa;color:#315e58}
+.contact-link{background:#e8f1ed;color:#285e56}
+.contact-link.primary{background:linear-gradient(105deg,#1d2b3b,#236b62);color:#fff}
+.trust-strip{background:#f9fcfa;border-color:#e4ece7}
+.trust-item svg{color:#b18d54}
+.share-section{border-color:#e4ece7}
+.share-button{background:linear-gradient(105deg,#287d70,#b58b4f);color:#fff;box-shadow:0 9px 21px #245e542b}
+.footer{background:#fff}
+.footer-brand{color:#398879}
+.loader-ring{border-color:#e5eee9;border-top-color:#287d70}
+.state-icon{background:#e8f1ed;color:#347f70}
+.retry-button{background:linear-gradient(105deg,#25384a,#287d70)}
+</style>
+
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#" aria-label="QR Studio Pro Advanced">
+      <span class="brand-symbol"><img src="./favicon.svg" alt=""></span>
+      <span><span class="brand-name">QR STUDIO PRO ADVANCED</span><span class="brand-caption">PREMIUM DIGITAL PRODUCT PROFILE</span></span>
+    </a>
+    <div class="header-right">
+      <div class="security-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg><span id="secure-label">شناسنامه دیجیتال محصول</span></div>
+      <button class="lang-toggle" id="language-toggle" type="button">EN / FA</button>
+    </div>
+  </div>
+</header>
+<main class="page-shell">
+<section class="page-card" aria-live="polite">
+  <div id="loading" class="loading-state"><div><div class="loader-ring"></div><div id="loading-label">در حال آماده‌سازی صفحه محصول...</div></div></div>
+  <div id="not-found" class="state" hidden><div>
+    <div class="state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5M8.5 8.5l4.6 4.6m0-4.6-4.6 4.6"/></svg></div>
+    <h2 id="not-found-title">محصول در دسترس نیست</h2><p id="not-found-copy">این محصول پیدا نشد یا هنوز منتشر نشده است. لطفاً لینک یا کد QR را بررسی کنید.</p>
+  </div></div>
+  <div id="failure" class="state" hidden><div>
+    <div class="state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 0 1 15.4-6.4L21 8"/><path d="M21 3v5h-5M21 12a9 9 0 0 1-15.4 6.4L3 16"/><path d="M3 21v-5h5"/></svg></div>
+    <h2 id="failure-title">اتصال برقرار نشد</h2><p id="failure-copy">اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.</p><button class="retry-button" id="retry">تلاش دوباره</button>
+  </div></div>
+  <article id="product" hidden>
+    <div class="hero-grid">
+      <section class="gallery-panel" aria-label="تصاویر محصول">
+        <div class="gallery-stage" id="gallery"><div class="no-image"><div><div class="no-image-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>هنوز تصویری برای این محصول ثبت نشده است.</div></div></div>
+        <div id="thumbs" class="thumb-row" hidden aria-label="انتخاب تصویر"></div>
+      </section>
+      <section class="details-panel">
+        <div class="eyebrow"><span class="eyebrow-line"></span><span id="eyebrow-label">معرفی اختصاصی محصول</span></div>
+        <div id="meta" class="product-meta"></div>
+        <h1 id="name"></h1>
+        <p id="brand" class="brand-subtitle"></p>
+        <div class="gold-rule"></div>
+        <h2 class="section-heading" id="description-heading">درباره این محصول</h2>
+        <div id="description" class="description"></div>
+        <div id="identity-card" class="identity-card" hidden>
+          <div class="identity-copy">
+            <span class="identity-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg></span>
+            <span><span class="identity-title" id="identity-title">شناسه محصول</span><br><span id="code" class="identity-value"></span></span>
+          </div>
+          <span class="identity-mark">QR PROFILE</span>
+        </div>
+      </section>
+    </div>
+    <section id="spec-section" class="content-section" hidden>
+      <div class="section-topline"><h2 class="section-heading" id="spec-heading">مشخصات و ویژگی‌ها</h2><span class="section-kicker">PRODUCT DETAILS</span></div>
+      <div id="specs" class="spec-grid"></div>
+    </section>
+    <section id="custom-section" class="content-section" hidden>
+      <div class="section-topline"><h2 class="section-heading" id="custom-heading">ویژگی‌های برجسته</h2><span class="section-kicker">HIGHLIGHTS</span></div>
+      <div id="custom-fields" class="custom-grid"></div>
+    </section>
+    <section id="attachments-section" class="content-section" hidden>
+      <div class="section-topline"><h2 class="section-heading" id="attachments-heading">کاتالوگ و محتوای بیشتر</h2><span class="section-kicker">RESOURCES</span></div>
+      <div id="attachments" class="link-grid"></div>
+    </section>
+    <section id="contact-section" class="content-section" hidden>
+      <div class="section-topline"><h2 class="section-heading" id="contact-heading">ارتباط با مجموعه</h2><span class="section-kicker">CONTACT</span></div>
+      <div id="contacts" class="contact-grid"></div>
+    </section>
+    <section class="trust-strip">
+      <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m12 3 7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg><span id="trust-one">شناسنامه دیجیتال متصل به QR</span></div>
+      <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4v-3"/></svg><span id="trust-two">بهینه‌شده برای موبایل و دسکتاپ</span></div>
+    </section>
+    <section class="share-section">
+      <div><div class="share-title" id="share-title">این محصول را با دیگران به اشتراک بگذارید</div><div class="share-subtitle" id="share-subtitle">لینک صفحه را برای مشاهده دوباره ذخیره یا ارسال کنید.</div></div>
+      <button id="share" class="share-button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4m-6.8 9.4 6.8 4.1"/></svg><span id="share-label">اشتراک‌گذاری محصول</span></button>
+    </section>
+  </article>
+  <footer class="footer"><span id="footer-note">اطلاعات این صفحه توسط مجموعه معرفی‌کننده محصول ثبت شده است.</span><span class="footer-brand">POWERED BY QR STUDIO PRO ADVANCED</span></footer>
+</section>
+</main>
+<dialog id="lightbox"><img id="lightbox-image" alt="نمای بزرگ تصویر محصول"></dialog>
+<script>
+const SUPABASE_URL = __SUPABASE_URL_JSON__;
+const SUPABASE_KEY = __SUPABASE_PUBLISHABLE_KEY_JSON__;
+const params = new URLSearchParams(window.location.search);
+const productId = params.get('id');
+const el = id => document.getElementById(id);
+let currentProduct = null;
+let galleryUrls = [];
+let activeImage = 0;
+let english = false;
+
+const labels = {
+  fa: {
+    secure:'شناسنامه دیجیتال محصول', loading:'در حال آماده‌سازی صفحه محصول...',
+    notFound:'محصول در دسترس نیست', notFoundCopy:'این محصول پیدا نشد یا هنوز منتشر نشده است. لطفاً لینک یا کد QR را بررسی کنید.',
+    failure:'اتصال برقرار نشد', failureCopy:'اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.',
+    eyebrow:'معرفی اختصاصی محصول', about:'درباره این محصول', identity:'شناسه محصول',
+    specs:'مشخصات و ویژگی‌ها', custom:'ویژگی‌های برجسته', attachments:'کاتالوگ و محتوای بیشتر',
+    contact:'ارتباط با مجموعه', trust1:'شناسنامه دیجیتال متصل به QR',
+    trust2:'بهینه‌شده برای موبایل و دسکتاپ',
+    share:'اشتراک‌گذاری محصول', shareSub:'لینک صفحه را برای مشاهده دوباره ذخیره یا ارسال کنید.',
+    footer:'اطلاعات این صفحه توسط مجموعه معرفی‌کننده محصول ثبت شده است.',
+    imageMissing:'هنوز تصویری برای این محصول ثبت نشده است.',
+    zoom:'برای بزرگ‌نمایی لمس کنید', copy:'لینک کپی شد', copyError:'امکان کپی خودکار نیست؛ لینک را از نوار آدرس کپی کنید.',
+    catalog:'دانلود کاتالوگ', video:'مشاهده ویدئوی معرفی', open:'مشاهده محتوا',
+    phone:'تماس تلفنی', whatsapp:'واتساپ', website:'وب‌سایت مجموعه'
+  },
+  en: {
+    secure:'DIGITAL PRODUCT PASSPORT', loading:'Preparing product profile...',
+    notFound:'Product unavailable', notFoundCopy:'This product could not be found or has not been published. Please check the QR code or link.',
+    failure:'Connection unavailable', failureCopy:'Check your internet connection and try again.',
+    eyebrow:'A closer look at this product', about:'About this product', identity:'PRODUCT ID',
+    specs:'Specifications & details', custom:'Key highlights', attachments:'Catalog & resources',
+    contact:'Contact the team', trust1:'Digital profile linked to QR',
+    trust2:'Designed for mobile and desktop',
+    share:'Share this product', shareSub:'Save or send this page link to view it again.',
+    footer:'Product information is provided by the presenting organization.',
+    imageMissing:'No images have been added for this product yet.',
+    zoom:'Tap to enlarge', copy:'Link copied', copyError:'Automatic copy is unavailable. Copy the address from your browser.',
+    catalog:'Download catalog', video:'Watch introduction', open:'Open resource',
+    phone:'Call', whatsapp:'WhatsApp', website:'Website'
+  }
+};
+
+function t(key){return labels[english?'en':'fa'][key]||key;}
+function showState(state){
+  el('loading').hidden=state!=='loading';
+  el('not-found').hidden=state!=='not-found';
+  el('failure').hidden=state!=='failure';
+  el('product').hidden=state!=='product';
+  el('footer-note').textContent=t('footer');
+}
+function normalizedImages(value){
+  if(!Array.isArray(value))return [];
+  return value.map(item=>{
+    if(typeof item==='string')return item;
+    if(item&&typeof item==='object')return item.url||item.publicUrl||item.public_url||'';
+    return '';
+  }).filter(url=>typeof url==='string'&&/^https:\/\//i.test(url));
+}
+function createSvgIcon(name){
+  const paths={
+    category:'<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/>',
+    brand:'<path d="M12 3 3 8v8l9 5 9-5V8l-9-5Z"/><path d="m8 10 4 2 4-2"/>',
+    phone:'<path d="M5 3h4l2 5-3 2a15 15 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2C10 21 3 14 3 5a2 2 0 0 1 2-2Z"/>',
+    whatsapp:'<path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5Z"/><path d="M8.5 8.2c.4 2.4 2.1 4.1 4.7 5.2l1.3-1.2 2 .8"/>',
+    web:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+    pdf:'<path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h5M8 13h8M8 17h6"/>',
+    video:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/>',
+    link:'<path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1 0l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"/>'
+  };
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[name]||paths.link)+'</svg>';
+}
+function addPill(text,icon){
+  if(!text)return;
+  const span=document.createElement('span');span.className='pill';
+  if(icon)span.insertAdjacentHTML('beforeend',createSvgIcon(icon));
+  const label=document.createElement('span');label.textContent=text;span.appendChild(label);
+  el('meta').appendChild(span);
+}
+function setImage(index){
+  if(!galleryUrls.length)return;
+  activeImage=(index+galleryUrls.length)%galleryUrls.length;
+  const image=document.createElement('img');
+  image.className='hero-image';image.src=galleryUrls[activeImage];
+  image.alt=(currentProduct.name||'Product')+' — '+(activeImage+1);
+  image.loading=activeImage===0?'eager':'lazy';
+  image.addEventListener('click',()=>{
+    el('lightbox-image').src=galleryUrls[activeImage];
+    el('lightbox').showModal();
+  });
+  el('gallery').replaceChildren(image);
+  const counter=document.createElement('span');counter.className='gallery-counter';
+  counter.textContent=String(activeImage+1).padStart(2,'0')+' / '+String(galleryUrls.length).padStart(2,'0');
+  el('gallery').appendChild(counter);
+  const hint=document.createElement('span');hint.className='zoom-hint';
+  hint.innerHTML=createSvgIcon('link')+t('zoom');
+  el('gallery').appendChild(hint);
+  Array.from(el('thumbs').children).forEach((thumb,i)=>{
+    thumb.classList.toggle('active',i===activeImage);
+  });
+}
+function renderGallery(){
+  el('thumbs').replaceChildren();
+  if(!galleryUrls.length){
+    const empty=document.createElement('div');empty.className='no-image';
+    empty.textContent=t('imageMissing');
+    el('gallery').replaceChildren(empty);
+    el('thumbs').hidden=true;return;
+  }
+  galleryUrls.forEach((url,index)=>{
+    const button=document.createElement('button');button.type='button';
+    button.className='thumb'+(index===0?' active':'');
+    button.setAttribute('aria-label','Image '+(index+1));
+    const image=document.createElement('img');image.src=url;
+    image.alt=(currentProduct.name||'Product')+' '+(index+1);
+    image.loading='lazy';button.appendChild(image);
+    button.addEventListener('click',()=>setImage(index));
+    el('thumbs').appendChild(button);
+  });
+  el('thumbs').hidden=galleryUrls.length<2;
+  setImage(0);
+}
+function renderSpecs(value){
+  const pairs=value&&typeof value==='object'&&!Array.isArray(value)?Object.entries(value):[];
+  const valid=pairs.filter(([key,val])=>String(key).trim()&&val!==null&&val!==undefined&&String(val).trim()&&typeof val!=='object').slice(0,30);
+  el('specs').replaceChildren();el('spec-section').hidden=valid.length===0;
+  valid.forEach(([key,val],index)=>{
+    const item=document.createElement('div');item.className='spec-item';
+    const bullet=document.createElement('span');bullet.className='spec-bullet';bullet.textContent=String(index+1).padStart(2,'0');
+    const copy=document.createElement('span');
+    const label=document.createElement('span');label.className='spec-key';label.textContent=key;
+    const value=document.createElement('span');value.className='spec-value';value.textContent=String(val);
+    copy.append(label,value);item.append(bullet,copy);el('specs').appendChild(item);
+  });
+}
+function renderCustom(value){
+  const pairs=value&&typeof value==='object'&&!Array.isArray(value)?Object.entries(value):[];
+  const valid=pairs.filter(([key,val])=>String(key).trim()&&val!==null&&val!==undefined&&String(val).trim()&&typeof val!=='object').slice(0,16);
+  el('custom-fields').replaceChildren();el('custom-section').hidden=valid.length===0;
+  valid.forEach(([key,val])=>{
+    const item=document.createElement('div');item.className='custom-card';
+    const label=document.createElement('span');label.className='custom-label';label.textContent=key;
+    const value=document.createElement('span');value.className='custom-value';value.textContent=String(val);
+    item.append(label,value);el('custom-fields').appendChild(item);
+  });
+}
+function safeWebUrl(value){
+  try{const url=new URL(String(value));return ['https:','http:'].includes(url.protocol)?url.href:'';}catch(_){return '';}
+}
+function renderAttachments(value){
+  const entries=Array.isArray(value)?value.filter(x=>x&&typeof x==='object'):[];
+  el('attachments').replaceChildren();el('attachments-section').hidden=true;
+  entries.slice(0,12).forEach(entry=>{
+    const href=safeWebUrl(entry.url);if(!href)return;
+    const type=String(entry.type||'').toLowerCase();
+    const title=entry.title|| (type==='catalog'?t('catalog'):(type==='video'?t('video'):t('open')));
+    const link=document.createElement('a');link.className='action-link';
+    link.href=href;link.target='_blank';link.rel='noopener noreferrer';
+    link.insertAdjacentHTML('afterbegin',createSvgIcon(type==='catalog'?'pdf':(type==='video'?'video':'link')));
+    const text=document.createElement('span');text.textContent=title;link.appendChild(text);
+    el('attachments').appendChild(link);el('attachments-section').hidden=false;
+  });
+}
+function normalizeWebsite(value){
+  if(!value)return '';
+  const raw=String(value).trim();
+  return safeWebUrl(/^https?:\/\//i.test(raw)?raw:'https://'+raw);
+}
+function renderContacts(value){
+  const contact=value&&typeof value==='object'?value:{};
+  const entries=[];
+  if(contact.phone)entries.push({label:t('phone'),icon:'phone',href:'tel:'+String(contact.phone).replace(/[^+0-9]/g,''),external:false});
+  if(contact.whatsapp)entries.push({label:t('whatsapp'),icon:'whatsapp',href:'https://wa.me/'+String(contact.whatsapp).replace(/[^0-9]/g,''),external:true});
+  if(contact.website){const href=normalizeWebsite(contact.website);if(href)entries.push({label:t('website'),icon:'web',href,external:true});}
+  el('contacts').replaceChildren();el('contact-section').hidden=entries.length===0;
+  entries.forEach((entry,index)=>{
+    const link=document.createElement('a');link.className='contact-link'+(index===0?' primary':'');link.href=entry.href;
+    if(entry.external){link.target='_blank';link.rel='noopener noreferrer';}
+    link.insertAdjacentHTML('afterbegin',createSvgIcon(entry.icon));
+    const text=document.createElement('span');text.textContent=entry.label;link.appendChild(text);
+    el('contacts').appendChild(link);
+  });
+}
+function applyLanguage(){
+  document.documentElement.lang=english?'en':'fa';
+  document.documentElement.dir=english?'ltr':'rtl';
+  const map={
+    'secure-label':'secure','loading-label':'loading','not-found-title':'notFound',
+    'not-found-copy':'notFoundCopy','failure-title':'failure','failure-copy':'failureCopy',
+    'eyebrow-label':'eyebrow','description-heading':'about','identity-title':'identity',
+    'spec-heading':'specs','custom-heading':'custom','attachments-heading':'attachments',
+    'contact-heading':'contact','trust-one':'trust1','trust-two':'trust2',
+    'share-title':'share','share-subtitle':'shareSub','share-label':'share','footer-note':'footer'
+  };
+  Object.entries(map).forEach(([id,key])=>{if(el(id))el(id).textContent=t(key);});
+  el('language-toggle').textContent=english?'FA / EN':'EN / FA';
+  if(currentProduct)renderProduct(currentProduct);
+  else showState('loading');
+}
+function renderProduct(product){
+  currentProduct=product;galleryUrls=normalizedImages(product.images);
+  const englishData=product.translations&&product.translations.en&&typeof product.translations.en==='object'?product.translations.en:{};
+  const productName=(english&&englishData.name)?englishData.name:(product.name||'Unnamed product');
+  const productDescription=(english&&englishData.description)?englishData.description:(product.description||'');
+  el('name').textContent=productName;
+  el('brand').textContent=product.brand||'';el('brand').hidden=!product.brand;
+  el('meta').replaceChildren();
+  if(product.category)addPill(product.category,'category');
+  if(product.brand)addPill(product.brand,'brand');
+  el('description').textContent=productDescription|| (english?'No description has been provided for this product.':'توضیح بیشتری برای این محصول ثبت نشده است.');
+  el('identity-card').hidden=!product.code;el('code').textContent=product.code||'';
+  renderGallery();renderSpecs(product.specifications);renderCustom(product.custom_fields);
+  renderAttachments(product.attachments);renderContacts(product.contact);
+  document.title=productName+' | QR Studio Pro Advanced';
+  document.querySelector('meta[name="description"]').setAttribute('content',productDescription||'QR Studio Pro Advanced — Digital product profile');
+  document.querySelector('meta[property="og:title"]').setAttribute('content',productName+' | QR Studio Pro Advanced');
+  document.querySelector('meta[property="og:description"]').setAttribute('content',productDescription||'Images and product specifications.');
+  const firstImage=galleryUrls[0];
+  if(firstImage)document.querySelector('meta[property="og:image"]').setAttribute('content',firstImage);
+  showState('product');
+}
+async function trackProductScan(productId){
+  try{
+    await fetch(SUPABASE_URL+'/functions/v1/track-product-scan',{
+      method:'POST',
+      headers:{
+        'apikey':SUPABASE_KEY,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        product_id:productId,
+        referrer:document.referrer||''
+      }),
+      keepalive:true
+    });
+  }catch(_){
+    // A scan should never block the product page from opening.
+  }
+}
+async function loadProduct(){
+  showState('loading');
+  if(!productId||!/^[0-9a-f-]{36}$/i.test(productId)){showState('not-found');return;}
+  try{
+    const columns='id,name,code,brand,category,description,images,specifications,custom_fields,attachments,translations,contact';
+    const endpoint=SUPABASE_URL+'/rest/v1/products?select='+columns+'&id=eq.'+encodeURIComponent(productId)+'&is_published=eq.true&is_active=eq.true&limit=1';
+    const response=await fetch(endpoint,{headers:{'apikey':SUPABASE_KEY}});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const rows=await response.json();
+    if(!Array.isArray(rows)||rows.length===0){showState('not-found');return;}
+    renderProduct(rows[0]);
+    void trackProductScan(rows[0].id);
+  }catch(error){console.error('QR Studio Pro Advanced product page:',error);showState('failure');}
+}
+el('retry').addEventListener('click',loadProduct);
+el('lightbox').addEventListener('click',()=>el('lightbox').close());
+el('language-toggle').addEventListener('click',()=>{english=!english;applyLanguage();});
+el('share').addEventListener('click',async()=>{
+  const data={title:currentProduct?.name||'Product',text:currentProduct?.description||'',url:window.location.href};
+  try{
+    if(navigator.share){await navigator.share(data);return;}
+    if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(window.location.href);el('share-label').textContent=t('copy');}
+    else{window.prompt(t('copyError'),window.location.href);}
+  }catch(error){if(error?.name!=='AbortError')window.prompt(t('copyError'),window.location.href);}
+});
+applyLanguage();
+loadProduct();
+</script>
+</body>
+</html>
