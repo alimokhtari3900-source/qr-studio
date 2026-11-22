@@ -490,7 +490,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final directory = await getTemporaryDirectory();
       final stamp = DateTime.now().toIso8601String()
           .replaceAll(':', '-').split('.').first;
-      final file = File('\${directory.path}/qr-studio-advanced-backup-\$stamp.json');
+      final file = File('${directory.path}/qr-studio-advanced-backup-$stamp.json');
       await file.writeAsString(
         const JsonEncoder.withIndent('  ').convert(payload),
         encoding: utf8,
@@ -655,21 +655,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
       final shouldContinue = await _confirmImport(
         'بازیابی نسخه پشتیبان',
-        '\${rows.length} محصول بررسی می‌شود. شناسه محصولات حفظ می‌شود تا لینک‌های QR قبلی معتبر بمانند. موارد تکراری اضافه نمی‌شوند. ادامه می‌دهید؟',
+        '${rows.length} محصول بررسی می‌شود. شناسه محصولات حفظ می‌شود تا لینک‌های QR قبلی معتبر بمانند. موارد تکراری اضافه نمی‌شوند. ادامه می‌دهید؟',
       );
       if (!shouldContinue) return;
 
       final result = await _insertImportedProducts(rows, preserveIds: true);
+      final importedCount = result['imported'] ?? 0;
+      final skippedCount = result['skipped'] ?? 0;
       await refresh();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('\${result['imported']} محصول بازیابی شد؛ \${result['skipped']} مورد تکراری یا نامعتبر رد شد.'),
+        content: Text('$importedCount محصول بازیابی شد؛ $skippedCount مورد تکراری یا نامعتبر رد شد.'),
         duration: const Duration(seconds: 5),
       ));
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('بازیابی انجام نشد: \$error'),
+        content: Text('بازیابی انجام نشد: $error'),
         duration: const Duration(seconds: 5),
       ));
     }
@@ -760,21 +762,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       final shouldContinue = await _confirmImport(
         'ورود گروهی محصولات',
-        '\${products.length} محصول وارد می‌شود. همه محصولات جدید به‌صورت پیش‌نویس ذخیره می‌شوند و تا انتشار دستی برای مشتری قابل مشاهده نیستند. ادامه می‌دهید؟',
+        '${products.length} محصول وارد می‌شود. همه محصولات جدید به‌صورت پیش‌نویس ذخیره می‌شوند و تا انتشار دستی برای مشتری قابل مشاهده نیستند. ادامه می‌دهید؟',
       );
       if (!shouldContinue) return;
 
       final result = await _insertImportedProducts(products, preserveIds: false);
+      final importedCount = result['imported'] ?? 0;
+      final skippedCount = result['skipped'] ?? 0;
       await refresh();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('\${result['imported']} محصول وارد شد؛ \${result['skipped']} مورد تکراری یا نامعتبر رد شد.'),
+        content: Text('$importedCount محصول وارد شد؛ $skippedCount مورد تکراری یا نامعتبر رد شد.'),
         duration: const Duration(seconds: 5),
       ));
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('ورود CSV انجام نشد: \$error'),
+        content: Text('ورود CSV انجام نشد: $error'),
         duration: const Duration(seconds: 5),
       ));
     }
@@ -816,7 +820,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(width: 8),
           const Expanded(child: Text('گزارش اسکن ۷ روز اخیر',
               style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13))),
-          Text('\$total اسکن', style: const TextStyle(
+          Text('$total اسکن', style: const TextStyle(
               color: Color(0xFF8A652E), fontWeight: FontWeight.w800, fontSize: 11)),
         ]),
         const SizedBox(height: 14),
