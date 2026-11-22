@@ -350,8 +350,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<List<Map<String, dynamic>>> loadScans() async {
     try {
-      final since = DateTime.now().toUtc()
+      final today = DateTime.now();
+      final since = DateTime(today.year, today.month, today.day)
           .subtract(const Duration(days: 6))
+          .toUtc()
           .toIso8601String();
       final rows = await Supabase.instance.client
           .from('product_scan_events')
