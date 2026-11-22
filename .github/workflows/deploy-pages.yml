@@ -70,6 +70,14 @@ jobs:
           (luxe_output / "product.html").write_text(luxe_html, encoding="utf-8")
           (luxe_output / "favicon.svg").write_text(Path("web/luxe/favicon.svg").read_text(encoding="utf-8"), encoding="utf-8")
 
+          advanced_output = output / "advanced"
+          advanced_output.mkdir(parents=True, exist_ok=True)
+          advanced_html = Path("web/advanced/product.html").read_text(encoding="utf-8")
+          advanced_html = advanced_html.replace("__SUPABASE_URL_JSON__", json.dumps(url))
+          advanced_html = advanced_html.replace("__SUPABASE_PUBLISHABLE_KEY_JSON__", json.dumps(key))
+          (advanced_output / "product.html").write_text(advanced_html, encoding="utf-8")
+          (advanced_output / "favicon.svg").write_text(Path("web/advanced/favicon.svg").read_text(encoding="utf-8"), encoding="utf-8")
+
           (output / "favicon.svg").write_text(Path("assets/branding/qr-studio-icon.svg").read_text(encoding="utf-8"), encoding="utf-8")
           (output / ".nojekyll").write_text("", encoding="utf-8")
           PY
