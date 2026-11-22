@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:cross_file/cross_file.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -17,7 +18,7 @@ const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const supabasePublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 const publicSiteUrl = String.fromEnvironment(
   'PUBLIC_SITE_URL',
-  defaultValue: 'https://alimokhtari3900-source.github.io/qr-studio/luxe',
+  defaultValue: 'https://alimokhtari3900-source.github.io/qr-studio/advanced',
 );
 const productImageBucket = 'product-images';
 const maxProductImages = 6;
@@ -42,7 +43,7 @@ class QRStudioApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'QR Studio Pro Luxe',
+        title: 'QR Studio Pro Advanced',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
@@ -97,7 +98,7 @@ class SetupRequired extends StatelessWidget {
                 const BrandMark(),
                 const SizedBox(height: 20),
                 const Text(
-                  'QR Studio Pro Luxe',
+                  'QR Studio Pro Advanced',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
@@ -141,7 +142,7 @@ class BrandMark extends StatelessWidget {
           ],
         ),
         clipBehavior: Clip.antiAlias,
-        child: Image.asset('assets/branding/qr-studio-luxe-icon.png', fit: BoxFit.cover),
+        child: Image.asset('assets/branding/qr-studio-advanced-icon.png', fit: BoxFit.cover),
       );
 }
 
@@ -270,7 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const BrandMark(),
                   const SizedBox(height: 18),
                   const Text(
-                    'QR Studio Pro Luxe',
+                    'QR Studio Pro Advanced',
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -328,6 +329,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final search = TextEditingController();
   late Future<List<Map<String, dynamic>>> productsFuture;
+  late Future<List<Map<String, dynamic>>> scansFuture;
   String filter = 'all';
   String sort = 'newest';
   String selectedCategory = 'همه دسته‌ها';
@@ -337,6 +339,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     productsFuture = load();
+    scansFuture = loadScans();
   }
 
   Future<List<Map<String, dynamic>>> load() async {
@@ -345,10 +348,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return List<Map<String, dynamic>>.from(rows);
   }
 
+  Future<List<Map<String, dynamic>>> loadScans() async {
+    try {
+      final since = DateTime.now().toUtc()
+          .subtract(const Duration(days: 6))
+          .toIso8601String();
+      final rows = await Supabase.instance.client
+          .from('product_scan_events')
+          .select('scanned_at,product_id')
+          .gte('scanned_at', since)
+          .order('scanned_at', ascending: true);
+      return List<Map<String, dynamic>>.from(rows);
+    } catch (_) {
+      return [];
+    }
+  }
+
   Future<void> refresh() async {
-    final next = load();
-    setState(() => productsFuture = next);
-    await next;
+    final nextProducts = load();
+    final nextScans = loadScans();
+    setState(() {
+      productsFuture = nextProducts;
+      scansFuture = nextScans;
+    });
+    await Future.wait([nextProducts, nextScans]);
   }
 
   Future<void> editor([Map<String, dynamic>? product]) async {
@@ -437,7 +460,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         flush: true,
       );
       await SharePlus.instance.share(ShareParams(
-        title: 'گزارش محصولات QR Studio Pro Luxe',
+        title: 'گزارش محصولات QR Studio Pro Advanced',
         text: 'گزارش محصولات برای بازکردن در Excel یا ذخیره در فایل‌ها.',
         files: [XFile(file.path)],
       ));
@@ -451,6 +474,390 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const SnackBar(content: Text('ساخت یا اشتراک‌گذاری فایل CSV انجام نشد.')),
       );
     }
+  }
+
+
+  Future<void> backupJson() async {
+    try {
+      final rows = await load();
+      final payload = {
+        'app': 'qr_studio_pro_advanced',
+        'schema_version': 1,
+        'exported_at': DateTime.now().toUtc().toIso8601String(),
+        'products_count': rows.length,
+        'products': rows,
+      };
+      final directory = await getTemporaryDirectory();
+      final stamp = DateTime.now().toIso8601String()
+          .replaceAll(':', '-').split('.').first;
+      final file = File('\${directory.path}/qr-studio-advanced-backup-\$stamp.json');
+      await file.writeAsString(
+        const JsonEncoder.withIndent('  ').convert(payload),
+        encoding: utf8,
+        flush: true,
+      );
+      await SharePlus.instance.share(ShareParams(
+        title: 'پشتیبان کامل QR Studio Pro Advanced',
+        text: 'نسخه پشتیبان محصولات و مشخصات برای بازیابی در همین فضای کاری.',
+        files: [XFile(file.path)],
+      ));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('فایل پشتیبان JSON آمادهٔ ذخیره است.')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ساخت فایل پشتیبان انجام نشد.')),
+      );
+    }
+  }
+
+  Future<Map<String, int>> _insertImportedProducts(
+    List<dynamic> sourceRows, {
+    required bool preserveIds,
+  }) async {
+    final client = Supabase.instance.client;
+    final currentUserId = client.auth.currentUser?.id;
+    if (currentUserId == null) {
+      throw StateError('برای واردکردن محصولات باید دوباره وارد حساب شوید.');
+    }
+
+    final existing = await client.from('products').select('id,code');
+    final existingIds = <String>{};
+    final existingCodes = <String>{};
+    for (final row in existing) {
+      if (row['id'] != null) existingIds.add(row['id'].toString());
+      final codeValue = row['code']?.toString().trim() ?? '';
+      if (codeValue.isNotEmpty) existingCodes.add(codeValue);
+    }
+
+    final pending = <Map<String, dynamic>>[];
+    var skipped = 0;
+    for (final raw in sourceRows) {
+      if (raw is! Map) {
+        skipped++;
+        continue;
+      }
+      final source = Map<String, dynamic>.from(raw);
+      final productName = source['name']?.toString().trim() ?? '';
+      if (productName.isEmpty) {
+        skipped++;
+        continue;
+      }
+
+      final sourceId = source['id']?.toString() ?? '';
+      final validId = preserveIds &&
+          RegExp(r'^[0-9a-f-]{36}$', caseSensitive: false).hasMatch(sourceId);
+      final codeValue = source['code']?.toString().trim() ?? '';
+      if ((validId && existingIds.contains(sourceId)) ||
+          (codeValue.isNotEmpty && existingCodes.contains(codeValue))) {
+        skipped++;
+        continue;
+      }
+
+      final record = <String, dynamic>{
+        'name': productName,
+        'code': codeValue.isEmpty ? null : codeValue,
+        'brand': source['brand']?.toString(),
+        'category': source['category']?.toString(),
+        'description': source['description']?.toString(),
+        'images': source['images'] is List ? source['images'] : <dynamic>[],
+        'attachments': source['attachments'] is List ? source['attachments'] : <dynamic>[],
+        'specifications': source['specifications'] is Map ? source['specifications'] : <String, dynamic>{},
+        'custom_fields': source['custom_fields'] is Map ? source['custom_fields'] : <String, dynamic>{},
+        'translations': source['translations'] is Map ? source['translations'] : <String, dynamic>{},
+        'contact': source['contact'] is Map ? source['contact'] : <String, dynamic>{},
+        'is_published': preserveIds && source['is_published'] == true,
+        'is_active': preserveIds ? source['is_active'] != false : true,
+        'scan_count': preserveIds && source['scan_count'] is num
+            ? (source['scan_count'] as num).toInt()
+            : 0,
+        'created_by': currentUserId,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      };
+      if (validId) record['id'] = sourceId;
+      if (preserveIds && source['created_at'] is String &&
+          DateTime.tryParse(source['created_at'].toString()) != null) {
+        record['created_at'] = source['created_at'];
+      }
+
+      pending.add(record);
+      if (validId) existingIds.add(sourceId);
+      if (codeValue.isNotEmpty) existingCodes.add(codeValue);
+    }
+
+    var imported = 0;
+    for (var offset = 0; offset < pending.length; offset += 100) {
+      final batch = pending.skip(offset).take(100).toList();
+      try {
+        await client.from('products').insert(batch);
+        imported += batch.length;
+      } catch (_) {
+        for (final record in batch) {
+          try {
+            await client.from('products').insert(record);
+            imported++;
+          } catch (_) {
+            skipped++;
+          }
+        }
+      }
+    }
+    return {'imported': imported, 'skipped': skipped};
+  }
+
+  Future<bool> _confirmImport(String title, String message) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('انصراف'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('ادامه'),
+          ),
+        ],
+      ),
+    );
+    return confirmed == true;
+  }
+
+  Future<void> restoreJson() async {
+    try {
+      final file = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      if (file == null) return;
+      final bytes = await file.readAsBytes();
+      if (bytes.length > 50 * 1024 * 1024) {
+        throw const FormatException('حجم فایل پشتیبان بیشتر از ۵۰ مگابایت است.');
+      }
+      final decoded = jsonDecode(utf8.decode(bytes));
+      if (decoded is! Map ||
+          decoded['app'] != 'qr_studio_pro_advanced' ||
+          decoded['schema_version'] != 1 ||
+          decoded['products'] is! List) {
+        throw const FormatException('ساختار فایل پشتیبان معتبر نیست.');
+      }
+      final rows = List<dynamic>.from(decoded['products'] as List);
+      if (rows.length > 5000) {
+        throw const FormatException('تعداد محصولات فایل بیش از حد مجاز است.');
+      }
+      if (rows.isEmpty) {
+        throw const FormatException('در فایل پشتیبان محصولی وجود ندارد.');
+      }
+      final shouldContinue = await _confirmImport(
+        'بازیابی نسخه پشتیبان',
+        '\${rows.length} محصول بررسی می‌شود. شناسه محصولات حفظ می‌شود تا لینک‌های QR قبلی معتبر بمانند. موارد تکراری اضافه نمی‌شوند. ادامه می‌دهید؟',
+      );
+      if (!shouldContinue) return;
+
+      final result = await _insertImportedProducts(rows, preserveIds: true);
+      await refresh();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('\${result['imported']} محصول بازیابی شد؛ \${result['skipped']} مورد تکراری یا نامعتبر رد شد.'),
+        duration: const Duration(seconds: 5),
+      ));
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('بازیابی انجام نشد: \$error'),
+        duration: const Duration(seconds: 5),
+      ));
+    }
+  }
+
+  List<List<String>> _parseCsv(String source) {
+    final input = source.replaceFirst('\uFEFF', '');
+    final rows = <List<String>>[];
+    var row = <String>[];
+    final cell = StringBuffer();
+    var quoted = false;
+
+    for (var i = 0; i < input.length; i++) {
+      final character = input[i];
+      if (character == '"') {
+        if (quoted && i + 1 < input.length && input[i + 1] == '"') {
+          cell.write('"');
+          i++;
+        } else {
+          quoted = !quoted;
+        }
+      } else if (character == ',' && !quoted) {
+        row.add(cell.toString());
+        cell.clear();
+      } else if ((character == '\n' || character == '\r') && !quoted) {
+        if (character == '\r' && i + 1 < input.length && input[i + 1] == '\n') {
+          i++;
+        }
+        row.add(cell.toString());
+        cell.clear();
+        if (row.any((value) => value.trim().isNotEmpty)) rows.add(row);
+        row = <String>[];
+      } else {
+        cell.write(character);
+      }
+    }
+    row.add(cell.toString());
+    if (row.any((value) => value.trim().isNotEmpty)) rows.add(row);
+    return rows;
+  }
+
+  Future<void> importCsv() async {
+    try {
+      final file = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+      if (file == null) return;
+      final bytes = await file.readAsBytes();
+      if (bytes.length > 20 * 1024 * 1024) {
+        throw const FormatException('حجم فایل CSV بیشتر از ۲۰ مگابایت است.');
+      }
+      final table = _parseCsv(utf8.decode(bytes));
+      if (table.length < 2) {
+        throw const FormatException('فایل CSV باید حداقل یک ردیف محصول داشته باشد.');
+      }
+
+      final headers = table.first.map((value) => value.trim().toLowerCase()).toList();
+      int column(List<String> aliases, int fallback) {
+        final found = headers.indexWhere((header) => aliases.contains(header));
+        return found >= 0 ? found : fallback;
+      }
+      final nameIndex = column(['نام محصول', 'نام', 'name', 'product_name'], 0);
+      final codeIndex = column(['کد', 'کد محصول', 'code', 'sku'], 1);
+      final brandIndex = column(['برند', 'brand'], 2);
+      final categoryIndex = column(['دسته‌بندی', 'دسته بندی', 'category'], 3);
+
+      String readValue(List<String> values, int index) =>
+          index >= 0 && index < values.length ? values[index].trim() : '';
+
+      final products = <Map<String, dynamic>>[];
+      for (final values in table.skip(1)) {
+        final nameValue = readValue(values, nameIndex);
+        if (nameValue.isEmpty) continue;
+        products.add({
+          'name': nameValue,
+          'code': readValue(values, codeIndex),
+          'brand': readValue(values, brandIndex),
+          'category': readValue(values, categoryIndex),
+        });
+      }
+      if (products.isEmpty) {
+        throw const FormatException('هیچ ردیف دارای نام محصول پیدا نشد.');
+      }
+      if (products.length > 5000) {
+        throw const FormatException('تعداد محصولات فایل بیش از حد مجاز است.');
+      }
+
+      final shouldContinue = await _confirmImport(
+        'ورود گروهی محصولات',
+        '\${products.length} محصول وارد می‌شود. همه محصولات جدید به‌صورت پیش‌نویس ذخیره می‌شوند و تا انتشار دستی برای مشتری قابل مشاهده نیستند. ادامه می‌دهید؟',
+      );
+      if (!shouldContinue) return;
+
+      final result = await _insertImportedProducts(products, preserveIds: false);
+      await refresh();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('\${result['imported']} محصول وارد شد؛ \${result['skipped']} مورد تکراری یا نامعتبر رد شد.'),
+        duration: const Duration(seconds: 5),
+      ));
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('ورود CSV انجام نشد: \$error'),
+        duration: const Duration(seconds: 5),
+      ));
+    }
+  }
+
+  Widget scanAnalyticsCard(List<Map<String, dynamic>> scanRows) {
+    final today = DateTime.now();
+    final days = List<DateTime>.generate(
+      7,
+      (index) => DateTime(today.year, today.month, today.day)
+          .subtract(Duration(days: 6 - index)),
+    );
+    final counts = List<int>.filled(7, 0);
+    for (final row in scanRows) {
+      final raw = row['scanned_at']?.toString();
+      if (raw == null) continue;
+      final date = DateTime.tryParse(raw)?.toLocal();
+      if (date == null) continue;
+      final dayIndex = days.indexWhere((day) =>
+          day.year == date.year && day.month == date.month && day.day == date.day);
+      if (dayIndex >= 0) counts[dayIndex]++;
+    }
+    final maximum = counts.fold<int>(1, (current, value) =>
+        value > current ? value : current);
+    final total = counts.fold<int>(0, (sum, value) => sum + value);
+    const weekdayLabels = ['د', 'س', 'چ', 'پ', 'ج', 'ش', 'ی'];
+
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(19),
+        border: Border.all(color: const Color(0xFFE9E0D3)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          const Icon(Icons.insights_rounded, color: Color(0xFF9B7435), size: 20),
+          const SizedBox(width: 8),
+          const Expanded(child: Text('گزارش اسکن ۷ روز اخیر',
+              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13))),
+          Text('\$total اسکن', style: const TextStyle(
+              color: Color(0xFF8A652E), fontWeight: FontWeight.w800, fontSize: 11)),
+        ]),
+        const SizedBox(height: 14),
+        SizedBox(
+          height: 105,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(7, (index) {
+              final barHeight = counts[index] == 0
+                  ? 3.0
+                  : 12.0 + 57.0 * counts[index] / maximum;
+              return Expanded(child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(counts[index].toString(),
+                      style: const TextStyle(fontSize: 9, color: Color(0xFF887A8C))),
+                  const SizedBox(height: 4),
+                  Container(
+                    height: barHeight,
+                    width: 17,
+                    decoration: BoxDecoration(
+                      color: counts[index] == 0
+                          ? const Color(0xFFEDE7DF)
+                          : const Color(0xFFB58A4A),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(weekdayLabels[days[index].weekday - 1],
+                      style: const TextStyle(fontSize: 9, color: Color(0xFF82778F))),
+                ],
+              ));
+            }),
+          ),
+        ),
+        if (total == 0)
+          const Text('پس از اسکن عمومی محصولات، آمار روزانه در این بخش نمایش داده می‌شود.',
+              style: TextStyle(fontSize: 10, color: Color(0xFF918795))),
+      ]),
+    );
   }
 
   Widget statCard(String label, String value, IconData icon, Color tint) =>
@@ -615,9 +1022,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
       title: const Row(children: [
         Icon(Icons.auto_awesome, color: Color(0xFFC79B4A), size: 19),
         SizedBox(width: 7),
-        Text('QR Studio Pro Luxe', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: -.3)),
+        Text('QR Studio Pro Advanced', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: -.3)),
       ]),
       actions: [
+        IconButton(
+          tooltip: 'پشتیبان‌گیری کامل JSON',
+          onPressed: backupJson,
+          icon: const Icon(Icons.backup_outlined),
+        ),
+        PopupMenuButton<String>(
+          tooltip: 'ورود گروهی اطلاعات',
+          onSelected: (value) {
+            if (value == 'json') restoreJson();
+            if (value == 'csv') importCsv();
+          },
+          itemBuilder: (_) => const [
+            PopupMenuItem(
+              value: 'json',
+              child: ListTile(
+                dense: true,
+                leading: Icon(Icons.settings_backup_restore_rounded),
+                title: Text('بازیابی پشتیبان JSON'),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'csv',
+              child: ListTile(
+                dense: true,
+                leading: Icon(Icons.table_view_outlined),
+                title: Text('ورود گروهی CSV'),
+              ),
+            ),
+          ],
+        ),
         IconButton(tooltip: 'به‌روزرسانی فهرست', onPressed: refresh, icon: const Icon(Icons.refresh_rounded)),
         IconButton(tooltip: 'خروج از حساب', onPressed: () async {
           await Supabase.instance.client.auth.signOut();
@@ -701,7 +1138,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Container(padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                       decoration: BoxDecoration(color: const Color(0x33D9B56B), borderRadius: BorderRadius.circular(30),
                         border: Border.all(color: const Color(0x66D9B56B))),
-                      child: const Text('PRO LUXE  •  نسخه ۳', style: TextStyle(color: Color(0xFFF2D8A2), fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: .5))),
+                      child: const Text('PRO ADVANCED  •  نسخه ۴', style: TextStyle(color: Color(0xFFF2D8A2), fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: .5))),
                   ]),
                   const SizedBox(height: 18),
                   const Text('مدیریت لوکس و هوشمند محصولات', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20)),
@@ -774,6 +1211,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ]),
                   ),
                 ),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: scansFuture,
+                builder: (context, scanSnapshot) {
+                  if (scanSnapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox(height: 6);
+                  }
+                  return scanAnalyticsCard(scanSnapshot.data ?? []);
+                },
+              ),
               const SizedBox(height: 8),
               Row(children: [
                 const Icon(Icons.archive_outlined, size: 15, color: Color(0xFF82778F)),
@@ -851,7 +1297,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               else
                 ...visible.map(productCard),
               const SizedBox(height: 12),
-              const Center(child: Text('QR Studio Pro Luxe  •  معرفی هوشمند محصولات',
+              const Center(child: Text('QR Studio Pro Advanced  •  معرفی هوشمند محصولات',
                 style: TextStyle(color: Color(0xFF9A91A2), fontSize: 10))),
             ]);
         })),
@@ -1609,7 +2055,7 @@ class _QRScreenState extends State<QRScreen> {
           final directory = await getTemporaryDirectory();
           final safeCode = (product['code'] ?? product['id'] ?? 'product')
               .toString().replaceAll(RegExp(r'[^A-Za-z0-9_-]'), '_');
-          final file = File('${directory.path}/QR-Studio-Pro-Luxe-$safeCode.png');
+          final file = File('${directory.path}/QR-Studio-Pro-Advanced-$safeCode.png');
           await file.writeAsBytes(byteData.buffer.asUint8List(), flush: true);
           await SharePlus.instance.share(ShareParams(
             title: 'QR اختصاصی ${product['name'] ?? ''}',
@@ -1669,7 +2115,7 @@ class _QRScreenState extends State<QRScreen> {
                       Row(children: [
                         const Icon(Icons.auto_awesome, color: Color(0xFFE8C37C), size: 18),
                         const SizedBox(width: 7),
-                        const Text('QR STUDIO PRO LUXE', style: TextStyle(
+                        const Text('QR STUDIO PRO ADVANCED', style: TextStyle(
                           color: Color(0xFFE8C37C), fontWeight: FontWeight.w900,
                           fontSize: 10, letterSpacing: 1.2)),
                         const Spacer(),
@@ -1773,7 +2219,7 @@ class _QRScreenState extends State<QRScreen> {
                                   : const Color(0xFFFCFBFD),
                               foregroundColor: qrForegroundColor,
                               errorCorrectionLevel: QrErrorCorrectLevel.H,
-                              embeddedImage: const AssetImage('assets/branding/qr-studio-luxe-icon.png'),
+                              embeddedImage: const AssetImage('assets/branding/qr-studio-advanced-icon.png'),
                               embeddedImageStyle: const QrEmbeddedImageStyle(
                                 size: Size(42, 42),
                               ),
